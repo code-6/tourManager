@@ -1,6 +1,7 @@
 package com.stas.tourManager.backend.persistance.services;
 
 import com.stas.tourManager.backend.persistance.pojos.Guide;
+import com.stas.tourManager.backend.persistance.pojos.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ public class GuideService {
     protected List<Guide> guides = new ArrayList<>();
     private Logger logger = LoggerFactory.getLogger(GuideService.class);
 
-    public void addGuide(String firstName, String lastName, String language) {
+    public void addGuide(String firstName, String lastName, Language language) {
         var guide = new Guide(firstName, lastName).withLanguage(language);
         guides.add(guide);
         logger.info("created new guide: " + guide.toString());
@@ -69,7 +70,7 @@ public class GuideService {
     /**
      * @// FIXME: 4/28/20 logging doesn't shows old data.
      * */
-    public void updateGuide(long id, String firstName, String middleName, String lastName, String language) {
+    public void updateGuide(long id, String firstName, String middleName, String lastName, Language language) {
         var logMessage = "update guide. Old data: ";
         var oldGuide = getGuide(id);
         if (oldGuide != null && oldGuide.isPresent() && !oldGuide.isEmpty()) {
@@ -83,7 +84,7 @@ public class GuideService {
                 og.setMiddleName(middleName);
             if (lastName != null && !lastName.isEmpty() && !lastName.isBlank())
                 og.setLastName(lastName);
-            if (language != null && !language.isEmpty() && !language.isBlank())
+            if (language != null)
                 og.setLanguage(language);
 
             if (middleName != null && !middleName.isEmpty())
@@ -108,7 +109,7 @@ public class GuideService {
     @PostConstruct
     public void init() {
         for (int i = 0; i < 100; i++){
-            addGuide("Guide "+i, "Guide", "Lang "+i);
+            addGuide("Guide "+i, "Guide", null);
         }
         logger.debug("init complete");
     }

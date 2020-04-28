@@ -1,10 +1,13 @@
 package com.stas.tourManager.frontend.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Guide;
+import com.stas.tourManager.backend.persistance.pojos.Language;
 import com.stas.tourManager.backend.persistance.services.GuideService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -16,7 +19,7 @@ public class AddGuideView extends Dialog {
     private final TextField firstName = new TextField("First name");
     private final TextField middleName = new TextField("Middle name");
     private final TextField lastName = new TextField("Last name");
-    private final TextField language = new TextField("Language");
+    private ComboBox<Language> language = new ComboBox<>();
 
     private final Button saveButton = new Button("save");
     private final Button cancelButton = new Button("cancel");
@@ -35,10 +38,11 @@ public class AddGuideView extends Dialog {
 
         guideBinder.bindInstanceFields(this);
         // fill form with guide data by using data binder.
-        guideBinder.setBean(guide);
+        //guideBinder.forField(language).bind("language");
 
         configureButtons();
         configureInputFields();
+        guideBinder.setBean(guide);
 //        // old form fill
 //        firstName.setValue(guide.getFirstName());
 //        // fix null exception
@@ -46,7 +50,10 @@ public class AddGuideView extends Dialog {
 //        lastName.setValue(guide.getLastName());
 //        language.setValue((guide.getLanguage() == null) ? "" : guide.getLanguage());
         var hl = new HorizontalLayout(saveButton, cancelButton, deleteButton);
-        var vl = new VerticalLayout(firstName, middleName, lastName, language, hl);
+        var hl2 = new HorizontalLayout(firstName, middleName, lastName);
+        var vl = new VerticalLayout(hl2, language, hl);
+        // set buttons to center.
+        vl.setAlignItems(FlexComponent.Alignment.CENTER);
         add(vl);
         setCloseOnOutsideClick(false);
         setCloseOnEsc(true);
@@ -77,6 +84,20 @@ public class AddGuideView extends Dialog {
         firstName.setSizeFull();
         middleName.setSizeFull();
         lastName.setSizeFull();
-        language.setSizeFull();
+
+        language.setItems(Language.getLangList());
+        language.setItemLabelGenerator(Language::getLang);
+        language.setAllowCustomValue(true);
+        language.addCustomValueSetListener(event -> {
+           var source = event.getDetail();
+            try {
+                var lang = Language.createLang(source);
+                // FIX bug #001. When save language that not exist yet.
+                language.setValue(lang);
+            } catch (Language.InvalidLanguageException e) {
+                // todo: display error notification to user.
+            }
+        });
+        language.setLabel("Language");
     }
 }

@@ -1,6 +1,7 @@
 package com.stas.tourManager.frontend.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Guide;
+import com.stas.tourManager.backend.persistance.pojos.Language;
 import com.stas.tourManager.backend.persistance.services.GuideService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,8 +44,13 @@ public class GuidesListView extends VerticalLayout {
 //        });
 
         grid.setSizeFull();
-        grid.setColumns("fullName", "language");
-        // add edit button to each row. todo: implement edit logic.
+        grid.removeColumnByKey("language");
+        grid.setColumns("fullName");
+        grid.addColumn(g -> {
+            var lang = g.getLanguage();
+            return lang == null ? "" : lang.getLang();
+        }).setHeader("Language").setSortable(true);
+        // add edit button to each row.
         grid.addComponentColumn(g -> {
             var editButton = new Button("edit");
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);

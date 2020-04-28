@@ -4,7 +4,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class Guide extends Participant {
-    private String language;
+    private Language language;
 
     public Guide() {
         super();
@@ -18,16 +18,16 @@ public class Guide extends Participant {
         super(firstName, middleName, lastName);
     }
 
-    public Guide withLanguage(String language) {
+    public Guide withLanguage(Language language) {
         this.setLanguage(language);
         return this;
     }
 
-    public String getLanguage() {
+    public Language getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(Language language) {
         this.language = language;
     }
 
@@ -59,7 +59,7 @@ public class Guide extends Participant {
     @Override
     public String toString() {
         return "Guide{" +
-                "language='" + language + '\'' +
+                "language='" + (language == null ? "" : language.getLang())+ '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", id=" + id +
                 '}';
