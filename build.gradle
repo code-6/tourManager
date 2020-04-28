@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.stas'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-NO_DB'
 sourceCompatibility = '11'
 
 configurations {

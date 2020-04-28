@@ -18,7 +18,7 @@ public class Guide extends Participant {
         super(firstName, middleName, lastName);
     }
 
-    public Guide withLanguage(String language){
+    public Guide withLanguage(String language) {
         this.setLanguage(language);
         return this;
     }
@@ -45,6 +45,17 @@ public class Guide extends Participant {
         return Objects.hash(super.hashCode(), getLanguage());
     }
 
+    public String toStringFull() {
+        return "Guide{" +
+                "language='" + language + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", id=" + id +
+                '}';
+    }
+
     @Override
     public String toString() {
         return "Guide{" +
@@ -53,4 +64,6 @@ public class Guide extends Participant {
                 ", id=" + id +
                 '}';
     }
+
+
 }

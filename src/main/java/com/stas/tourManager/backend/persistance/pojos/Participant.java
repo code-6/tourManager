@@ -22,7 +22,7 @@ public abstract class Participant extends AbstractEntity {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
-        fullName = String.format("%s %s", firstName, lastName);
+        setFullName(String.format("%s %s", firstName, lastName));
     }
 
     public Participant(@NotNull String firstName, String middleName, @NotNull String lastName) {
@@ -32,9 +32,9 @@ public abstract class Participant extends AbstractEntity {
         this.lastName = lastName;
 
         if (middleName != null && !middleName.isEmpty())
-            fullName = String.format("%s %s %s", firstName, middleName, lastName);
+            setFullName(String.format("%s %s %s", firstName, middleName, lastName));
         else
-            fullName = String.format("%s %s", firstName, lastName);
+            setFullName(String.format("%s %s", firstName, lastName));
     }
 
     public String getFirstName() {

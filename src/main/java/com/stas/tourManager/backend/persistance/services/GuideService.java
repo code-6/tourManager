@@ -1,7 +1,6 @@
 package com.stas.tourManager.backend.persistance.services;
 
 import com.stas.tourManager.backend.persistance.pojos.Guide;
-import com.stas.tourManager.backend.persistance.pojos.Participant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -67,13 +66,17 @@ public class GuideService {
         return guides.stream().filter(g -> g.getFullName().equalsIgnoreCase(fullName)).findAny();
     }
 
+    /**
+     * @// FIXME: 4/28/20 logging doesn't shows old data.
+     * */
     public void updateGuide(long id, String firstName, String middleName, String lastName, String language) {
         var logMessage = "update guide. Old data: ";
         var oldGuide = getGuide(id);
         if (oldGuide != null && oldGuide.isPresent() && !oldGuide.isEmpty()) {
             var og = oldGuide.get();
-            logMessage += og.toString() + ". New data: ";
+            logMessage += oldGuide.get().toStringFull() + ". New data: ";
             deleteGuide(id);
+
             if (firstName != null && !firstName.isEmpty() && !firstName.isBlank())
                 og.setFirstName(firstName);
             if (middleName != null && !middleName.isEmpty() && !middleName.isBlank())
@@ -82,8 +85,14 @@ public class GuideService {
                 og.setLastName(lastName);
             if (language != null && !language.isEmpty() && !language.isBlank())
                 og.setLanguage(language);
+
+            if (middleName != null && !middleName.isEmpty())
+                og.setFullName(String.format("%s %s %s", firstName, middleName, lastName));
+            else
+                og.setFullName(String.format("%s %s", firstName, lastName));
+
             addGuide(og);
-            logMessage += og.toString();
+            logMessage += og.toStringFull();
             logger.info(logMessage);
         }
     }
@@ -91,7 +100,6 @@ public class GuideService {
     public boolean existGuide(long id) {
         return guides.stream().anyMatch(g -> g.getId() == id);
     }
-
 
     public boolean existGuide(String fullName) {
         return guides.stream().anyMatch(g -> g.getFullName().equalsIgnoreCase(fullName));
@@ -106,16 +114,14 @@ public class GuideService {
     }
 
     public List<Guide> getGuides() {
+        Comparator<Guide> compareByFullName = new Comparator<Guide>() {
+            @Override
+            public int compare(Guide o1, Guide o2) {
+                return o1.getFullName().compareTo(o2.getFullName());
+            }
+        };
+        guides.sort(compareByFullName);
         return guides;
     }
 
-
-    public int count() {
-        return guides.size();
-    }
-
-    public Arrays fetch(int offset, int limit) {
-
-        return null;
-    }
 }
