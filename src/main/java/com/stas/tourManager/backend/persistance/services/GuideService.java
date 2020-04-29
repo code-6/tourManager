@@ -9,6 +9,12 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
+/**
+ * CRUD operations service for Guides.
+ *
+ * @author Stanislav Wong.
+ * @version 0.0.1-NO_DB.
+ */
 @Service
 public class GuideService {
     protected List<Guide> guides = new ArrayList<>();
@@ -26,6 +32,13 @@ public class GuideService {
         logger.info("created new guide: " + guide.toString());
     }
 
+    public void saveOrUpdate(Guide guide){
+        if(existGuide(guide.getId()))
+            updateGuide(guide.getId(), guide.getFirstName(), guide.getMiddleName(), guide.getLastName(), guide.getLanguage());
+        else
+            addGuide(guide);
+    }
+
     public void addGuide(Guide guide) {
         guides.add(guide);
         logger.info("created new guide: " + guide.toString());
@@ -38,6 +51,12 @@ public class GuideService {
         }
     }
 
+    /**
+     * Delete guide by id.
+     *
+     * @param id unique guide identifier.
+     * @return true if deleted successfully.
+     */
     public boolean deleteGuide(long id) {
         var deleted = guides.removeIf(g -> g.getId() == id);
         if (deleted)
@@ -45,6 +64,13 @@ public class GuideService {
         return deleted;
     }
 
+    /**
+     * Delete guide by full name.
+     *
+     * @param fullName full name of guide. Example: Stanislav Wong. Case insensitive.
+     * @return true if deleted successfully.
+     * @implNote use only if exist only 1 guide with given name. Otherwise will be deleted first in list.
+     */
     public boolean deleteGuide(String fullName) {
         var deleted = guides.removeIf(g -> g.getFullName().equalsIgnoreCase(fullName));
         if (deleted)
@@ -69,7 +95,7 @@ public class GuideService {
 
     /**
      * @// FIXME: 4/28/20 logging doesn't shows old data.
-     * */
+     */
     public void updateGuide(long id, String firstName, String middleName, String lastName, Language language) {
         var logMessage = "update guide. Old data: ";
         var oldGuide = getGuide(id);
@@ -108,12 +134,15 @@ public class GuideService {
 
     @PostConstruct
     public void init() {
-        for (int i = 0; i < 100; i++){
-            addGuide("Guide "+i, "Guide", null);
+        for (int i = 0; i < 10; i++) {
+            addGuide("Guide " + i, "Guide", null);
         }
         logger.debug("init complete");
     }
 
+    /**
+     * @return ascending sorted list by guide full name.
+     */
     public List<Guide> getGuides() {
         Comparator<Guide> compareByFullName = new Comparator<Guide>() {
             @Override

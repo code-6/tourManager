@@ -3,9 +3,11 @@ package com.stas.tourManager.frontend.views;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.Language;
 import com.stas.tourManager.backend.persistance.services.GuideService;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -26,11 +28,16 @@ public class AddGuideView extends Dialog {
     private final Button deleteButton = new Button("delete");
     // used to fill form with selected object and bind properties
     private Binder<Guide> guideBinder = new BeanValidationBinder<>(Guide.class);
+    // todo: replace to free component
+    private ConfirmDialog dialog = new ConfirmDialog("Confirm delete",
+            "Are you sure you want to delete the item? This action can't be undone!",
+            "Delete", this::delete, "Cancel", this::close);
 
     @Autowired
     private GuideService guideService;
 
     public AddGuideView(boolean withDelete, Guide guide, GuideService guideService) {
+        dialog.setConfirmButtonTheme("error primary");
         this.guideService = guideService;
         // show form with or without delete button. If create new guide then no need delete button.
         if (!withDelete)
@@ -50,8 +57,9 @@ public class AddGuideView extends Dialog {
 //        lastName.setValue(guide.getLastName());
 //        language.setValue((guide.getLanguage() == null) ? "" : guide.getLanguage());
         var hl = new HorizontalLayout(saveButton, cancelButton, deleteButton);
-        var hl2 = new HorizontalLayout(firstName, middleName, lastName);
-        var vl = new VerticalLayout(hl2, language, hl);
+        var hl2 = new HorizontalLayout(firstName, lastName);
+        var hl3 = new HorizontalLayout(middleName, language);
+        var vl = new VerticalLayout(hl2, hl3, hl);
         // set buttons to center.
         vl.setAlignItems(FlexComponent.Alignment.CENTER);
         add(vl);
@@ -70,12 +78,30 @@ public class AddGuideView extends Dialog {
             GuidesListView.updateTable();
             close();
         });
+        saveButton.addClickShortcut(Key.ENTER);
+
+        deleteButton.addClickListener(event -> {
+            dialog.open();
+        });
     }
 
+    private void close(ConfirmDialog.CancelEvent cancelEvent) {
+        dialog.close();
+    }
+
+    // todo: implement method properly, don't forget to update list after delete.
+    private void delete(ConfirmDialog.ConfirmEvent confirmEvent) {
+        System.out.println("GUIDE: "+guideBinder.getBean().getFullName()+" deleted!");
+        close();
+    }
+
+    /**
+     *
+     */
     private void save() {
         if (guideBinder.isValid()) {
             var g = guideBinder.getBean();
-            guideService.updateGuide(g.getId(), g.getFirstName(), g.getMiddleName(), g.getLastName(), g.getLanguage());
+            guideService.saveOrUpdate(g);
         }
     }
 
@@ -89,7 +115,7 @@ public class AddGuideView extends Dialog {
         language.setItemLabelGenerator(Language::getLang);
         language.setAllowCustomValue(true);
         language.addCustomValueSetListener(event -> {
-           var source = event.getDetail();
+            var source = event.getDetail();
             try {
                 var lang = Language.createLang(source);
                 // FIX bug #001. When save language that not exist yet.
@@ -98,6 +124,8 @@ public class AddGuideView extends Dialog {
                 // todo: display error notification to user.
             }
         });
+        language.setClearButtonVisible(true);
+        language.setAutofocus(false);
         language.setLabel("Language");
     }
 }
