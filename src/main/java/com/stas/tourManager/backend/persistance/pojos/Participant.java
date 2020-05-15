@@ -62,7 +62,14 @@ public abstract class Participant extends AbstractEntity {
     }
 
     public String getFullName() {
-        return fullName;
+        if (fullName == null || fullName.isEmpty()) {
+            if (middleName != null && !middleName.isEmpty())
+                return String.format("%s %s %s", firstName, middleName, lastName);
+            else
+                return String.format("%s %s", firstName, lastName);
+        }else {
+            return fullName;
+        }
     }
 
     public void setFullName(String fullName) {

@@ -1,5 +1,6 @@
 package com.stas.tourManager.backend.persistance.pojos;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,4 +42,6 @@ public class Language {
             super(message);
         }
     }
+
+
 }

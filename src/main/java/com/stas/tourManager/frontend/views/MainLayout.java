@@ -17,9 +17,9 @@ public class MainLayout extends AppLayout {
         var guidesList = new Tab();
 
         picasso.add(new RouterLink("Picasso", PicassoView.class));
-        toursList.add(new RouterLink("Tours", ToursListView.class));
-        driversList.add(new RouterLink("Drivers", DriversListView.class));
-        guidesList.add(new RouterLink("Guides", GuidesListView.class));
+        toursList.add(new RouterLink("Tours", ListToursView.class));
+        driversList.add(new RouterLink("Drivers", ListDriversView.class));
+        guidesList.add(new RouterLink("Guides", ListGuidesView.class));
 
         var tabs = new Tabs(picasso, toursList, driversList, guidesList);
         addToNavbar(tabs);

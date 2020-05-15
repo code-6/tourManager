@@ -6,6 +6,7 @@ import com.vaadin.flow.router.Route;
 
 @Route(value = "", layout = MainLayout.class)
 public class PicassoView extends VerticalLayout {
+
     public PicassoView() {
         add(new H1("This is Picasso page"));
     }

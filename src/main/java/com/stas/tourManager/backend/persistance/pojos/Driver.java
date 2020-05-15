@@ -3,15 +3,15 @@ package com.stas.tourManager.backend.persistance.pojos;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
-public class Driver extends Participant{
+public class Driver extends Participant {
 
-    private String car;
+    private Car car;
 
     public Driver() {
         super();
     }
 
-    public Driver(@NotNull String firstName, @NotNull  String lastName) {
+    public Driver(@NotNull String firstName, @NotNull String lastName) {
         super(firstName, lastName);
     }
 
@@ -19,11 +19,11 @@ public class Driver extends Participant{
         super(firstName, middleName, lastName);
     }
 
-    public String getCar() {
+    public Car getCar() {
         return car;
     }
 
-    public void setCar(String car) {
+    public void setCar(Car car) {
         this.car = car;
     }
 
@@ -48,5 +48,21 @@ public class Driver extends Participant{
                 ", fullName='" + fullName + '\'' +
                 ", id=" + id +
                 '}';
+    }
+
+    public String toStringFull() {
+        return "Driver{" +
+                "car='" + car + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", middleName='" + middleName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", id=" + id +
+                '}';
+    }
+
+    public Driver withCar(Car car) {
+        this.setCar(car);
+        return this;
     }
 }

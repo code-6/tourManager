@@ -47,7 +47,7 @@ public class Guide extends Participant {
 
     public String toStringFull() {
         return "Guide{" +
-                "language='" + language + '\'' +
+                "language='" + language.getLang() + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", middleName='" + middleName + '\'' +
                 ", lastName='" + lastName + '\'' +

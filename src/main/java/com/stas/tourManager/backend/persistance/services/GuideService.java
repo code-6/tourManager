@@ -1,5 +1,7 @@
 package com.stas.tourManager.backend.persistance.services;
 
+import com.github.javafaker.Faker;
+import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.Language;
 import org.slf4j.Logger;
@@ -17,7 +19,7 @@ import java.util.*;
  */
 @Service
 public class GuideService {
-    protected List<Guide> guides = new ArrayList<>();
+    protected static List<Guide> guides = new ArrayList<>();
     private Logger logger = LoggerFactory.getLogger(GuideService.class);
 
     public void addGuide(String firstName, String lastName, Language language) {
@@ -134,10 +136,11 @@ public class GuideService {
 
     @PostConstruct
     public void init() {
+        Faker faker = new Faker();
         for (int i = 0; i < 10; i++) {
-            addGuide("Guide " + i, "Guide", null);
+            addGuide(faker.name().firstName(), faker.name().lastName());
         }
-        logger.debug("init complete");
+        logger.debug("init guide complete");
     }
 
     /**
@@ -152,6 +155,10 @@ public class GuideService {
         };
         guides.sort(compareByFullName);
         return guides;
+    }
+
+    public static Guide getRandomGuide(){
+        return guides.get(new Random().nextInt(guides.size()));
     }
 
 }
