@@ -2,7 +2,6 @@ package com.stas.tourManager.frontend.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Tour;
 import com.stas.tourManager.backend.persistance.services.TourService;
-import com.stas.tourManager.frontend.views.test.DemoUI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
