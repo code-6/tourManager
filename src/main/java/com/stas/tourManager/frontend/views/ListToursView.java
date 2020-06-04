@@ -35,7 +35,7 @@ public class ListToursView extends VerticalLayout {
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.setSizeFull();
         // add edit button to each row.
-        grid.setColumns("title", "date", "description");
+        grid.setColumns("title", "from","to", "description");
         grid.addComponentColumn(driver -> {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);

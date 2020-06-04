@@ -16,12 +16,12 @@ public class TourManagerApplication {
 	@PostConstruct
 	private void init(){
 		try {
-			Language.createLang("english");
+			Language.createLang("ENGLISH");
 			Language.createLang("german");
 			Language.createLang("russian");
-			Language.createLang("CHINESE");
-			Language.createLang("HINDI");
-			Language.createLang("ARABIC");
+			Language.createLang("chinese");
+			Language.createLang("hindi");
+			Language.createLang("arabic");
 			System.out.println("Languages created");
 
 			Car.createCar("mercedes");

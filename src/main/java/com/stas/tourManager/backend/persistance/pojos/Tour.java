@@ -1,7 +1,10 @@
 package com.stas.tourManager.backend.persistance.pojos;
 
 import com.stas.tourManager.backend.persistance.services.GuideService;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,8 @@ public class Tour extends AbstractEntity {
     private List<Guide> guides = new ArrayList<>();
     private List<Driver> drivers = new ArrayList<>();
     private String file;
+
+    private String from, to;
 
     public Tour() {
 
@@ -80,6 +85,16 @@ public class Tour extends AbstractEntity {
     //endregion
 
     //region getters/setters
+
+
+    public String getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -102,6 +117,8 @@ public class Tour extends AbstractEntity {
 
     public void setDate(Interval date) {
         this.date = date;
+        from = date.getStart().toString("dd-MM-yyyy hh:mm");
+        to = date.getEnd().toString("dd-MM-yyyy hh:mm");
     }
 
     public List<Guide> getGuides() {

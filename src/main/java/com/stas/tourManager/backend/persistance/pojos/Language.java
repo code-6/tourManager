@@ -34,7 +34,7 @@ public class Language {
     }
 
     public static boolean isValid(String lang) {
-        return Arrays.asList(Locale.getAvailableLocales()).stream().anyMatch(l -> l.getDisplayLanguage().equalsIgnoreCase(lang));
+        return Arrays.asList(Locale.getAvailableLocales()).stream().anyMatch(l -> l.getDisplayLanguage(Locale.ENGLISH).equalsIgnoreCase(lang));
     }
 
     public static class InvalidLanguageException extends Exception {
