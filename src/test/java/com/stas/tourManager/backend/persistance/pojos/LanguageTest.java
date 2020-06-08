@@ -1,9 +1,7 @@
 package com.stas.tourManager.backend.persistance.pojos;
 
-import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,10 +15,10 @@ class LanguageTest {
         var l3 = "deutsch";
         var l4 = "asddd";
         System.out.println(Locale.US.getDisplayLanguage());
-        assertTrue(Language.isValid(l1));
-        assertTrue(Language.isValid(l2));
-        assertTrue(Language.isValid(l3));
-        assertFalse(Language.isValid(l4));
+        assertTrue(LanguageService.isValid(l1));
+        assertTrue(LanguageService.isValid(l2));
+        assertTrue(LanguageService.isValid(l3));
+        assertFalse(LanguageService.isValid(l4));
     }
 
 }

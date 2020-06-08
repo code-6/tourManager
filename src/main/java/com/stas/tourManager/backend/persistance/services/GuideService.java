@@ -1,9 +1,7 @@
 package com.stas.tourManager.backend.persistance.services;
 
 import com.github.javafaker.Faker;
-import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
-import com.stas.tourManager.backend.persistance.pojos.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +20,7 @@ public class GuideService {
     protected static List<Guide> guides = new ArrayList<>();
     private Logger logger = LoggerFactory.getLogger(GuideService.class);
 
-    public void addGuide(String firstName, String lastName, Language language) {
+    public void addGuide(String firstName, String lastName, String language) {
         var guide = new Guide(firstName, lastName).withLanguage(language);
         guides.add(guide);
         logger.info("created new guide: " + guide.toString());
@@ -98,7 +96,7 @@ public class GuideService {
     /**
      * @// FIXME: 4/28/20 logging doesn't shows old data.
      */
-    public void updateGuide(long id, String firstName, String middleName, String lastName, Language language) {
+    public void updateGuide(long id, String firstName, String middleName, String lastName, String language) {
         var logMessage = "update guide. Old data: ";
         var oldGuide = getGuide(id);
         if (oldGuide != null && oldGuide.isPresent() && !oldGuide.isEmpty()) {
@@ -137,7 +135,7 @@ public class GuideService {
     @PostConstruct
     public void init() {
         Faker faker = new Faker();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             addGuide(faker.name().firstName(), faker.name().lastName());
         }
         logger.debug("init guide complete");

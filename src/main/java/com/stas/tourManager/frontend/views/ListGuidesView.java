@@ -9,9 +9,12 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 // FIXME: 5/2/20 make this class reusable for all kind of list views
+//@VaadinSessionScope
 @Route(value = "guides", layout = MainLayout.class)
 public class ListGuidesView extends VerticalLayout {
     private Logger logger = LoggerFactory.getLogger(ListGuidesView.class);
@@ -53,19 +56,14 @@ public class ListGuidesView extends VerticalLayout {
 //        });
 
         grid.setSizeFull();
-        try {
-            grid.removeColumnByKey("language");
-        } catch (IllegalArgumentException e) {
-            logger.error("unable to remove column 'language'.\n" + e.getMessage());
-        }
-        /* note that set columns shall follow right after remove column. otherwise possible illegalStateException.
-        * FIX: 4/29/20 resolve IllegalArgumentException when deleting column 'language'
-        * */
-        grid.setColumns("fullName");
-        grid.addColumn(g -> {
-            var lang = g.getLanguage();
-            return lang == null ? "" : lang.getLang();
-        }).setHeader("Language").setSortable(true);
+        // FIXME: 6/4/20 IllegalStateException
+//        try {
+//            grid.removeColumnByKey("language");
+//        } catch (IllegalArgumentException e) {
+//            logger.error("unable to remove column 'language'.\n" + e.getMessage());
+//        }
+
+        grid.setColumns("fullName", "language");
         // add edit button to each row.
         grid.addComponentColumn(g -> {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
