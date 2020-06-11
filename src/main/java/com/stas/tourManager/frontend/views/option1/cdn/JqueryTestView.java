@@ -3,8 +3,10 @@ package com.stas.tourManager.frontend.views.option1.cdn;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -12,7 +14,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.Route;
-
 
 @Route("test/cdn")
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
@@ -24,22 +25,17 @@ public class JqueryTestView extends VerticalLayout {
     private String value = "Test";
     public JqueryTestView() {
         H1 title = new H1("Test Page");
-        // daterange picker works with html input, but not with vaadin textField, why?
-//        Input input = new Input();
-//        input.setType("text");
-//        input.setClassName("daterange");
-//        input.addClassName("daterange");
         TextField textField = new TextField("Date-time");
         textField.setMinWidth("285px");
         textField.setId("daterange");
-
         add(title, textField);
     }
 
     protected void onAttach(AttachEvent event) {
         super.onAttach(event);
         // executing JS should be avoided in constructor
-        getElement().executeJs("$(function () {\n" +
+        var elem = getElement();
+        elem.executeJs("$(function () {\n" +
                 "    $('#daterange').daterangepicker({\n" +
                 "        timePicker: true,\n" +
                 "        timePicker24Hour: true,\n" +

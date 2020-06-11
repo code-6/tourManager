@@ -36,7 +36,7 @@ public class ListDriversView extends VerticalLayout {
         createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
         var plusIcon = VaadinIcon.PLUS.create();
         createButton.setIcon(plusIcon);
-        createButton.addClickListener(e -> new AddDriverForm(false, new Driver(), driverService).open());
+        createButton.addClickListener(e -> new AddDriverForm(false, "Create new driver", new Driver(), driverService).open());
     }
 
     /**
@@ -70,7 +70,8 @@ public class ListDriversView extends VerticalLayout {
         grid.addComponentColumn(driver -> {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            editButton.addClickListener(e -> new AddDriverForm(true, driver, driverService).open());
+            var title = "Edit driver: " + driver.getFullName();
+            editButton.addClickListener(e -> new AddDriverForm(true, title, driver, driverService).open());
             return editButton;
         }).setHeader(createButton);
 

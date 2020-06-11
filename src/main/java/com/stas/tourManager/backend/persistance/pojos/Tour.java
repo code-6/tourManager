@@ -1,6 +1,7 @@
 package com.stas.tourManager.backend.persistance.pojos;
 
 import com.stas.tourManager.backend.persistance.services.GuideService;
+import com.vaadin.flow.router.OptionalParameter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;

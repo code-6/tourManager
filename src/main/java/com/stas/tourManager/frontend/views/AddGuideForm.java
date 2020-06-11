@@ -3,6 +3,7 @@ package com.stas.tourManager.frontend.views;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.LanguageService;
 import com.stas.tourManager.backend.persistance.services.GuideService;
+import com.stas.tourManager.util.RegexList;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -10,6 +11,8 @@ import com.vaadin.flow.data.binder.Binder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.regex.Pattern;
 
 public class AddGuideForm extends AddParticipantForm {
     private ComboBox<String> language = new ComboBox<>();
@@ -19,15 +22,17 @@ public class AddGuideForm extends AddParticipantForm {
     @Autowired
     private final GuideService guideService;
 
-    public AddGuideForm(boolean withDelete, Guide guide, GuideService guideService) {
-        super(withDelete);
+    public AddGuideForm(boolean withDelete, String title, Guide guide, GuideService guideService) {
+        super(withDelete, title);
+        binder.setBean(guide);
         fieldsLayout2.add(language);
         this.guideService = guideService;
         setupButtons();
         setupComboBox();
         init();
-        binder.setBean(guide);
+
         binder.bindInstanceFields(this);
+
     }
 
     private void setupButtons() {
@@ -71,11 +76,19 @@ public class AddGuideForm extends AddParticipantForm {
                 var lang = LanguageService.createLang(source);
                 // FIX bug #001. When save language that not exist yet.
                 language.setValue(lang);
+                language.setInvalid(false);
+                language.setErrorMessage(null);
             } catch (LanguageService.InvalidLanguageException e) {
                 // todo: display error notification to user.
                 log.debug("Language: "+source+" is invalid!");
+                language.setInvalid(true);
+                language.setErrorMessage("Enter ISO 639 language name");
             }
         });
+//        binder.forField(language)
+//                .withValidator(l -> LanguageService.isValid(language.getValue()), "Invalid language!")
+//                .bind(Guide::getLanguage, Guide::setLanguage);
+
         language.setClearButtonVisible(true);
         language.setAutofocus(false);
         language.setLabel("Language");

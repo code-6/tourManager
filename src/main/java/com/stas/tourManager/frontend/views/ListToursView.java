@@ -1,6 +1,8 @@
 package com.stas.tourManager.frontend.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Tour;
+import com.stas.tourManager.backend.persistance.services.DriverService;
+import com.stas.tourManager.backend.persistance.services.GuideService;
 import com.stas.tourManager.backend.persistance.services.TourService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -16,11 +18,15 @@ import org.slf4j.LoggerFactory;
 public class ListToursView extends VerticalLayout {
     private Logger logger = LoggerFactory.getLogger(ListToursView.class);
     private static TourService tourService;
+    private static GuideService guideService;
+    private static DriverService driverService;
     private static Grid<Tour> grid = new Grid<>(Tour.class);
     private final Button createButton = new Button("add");
 
-    public ListToursView(TourService tourService) {
+    public ListToursView(TourService tourService, GuideService guideService, DriverService driverService) {
         this.tourService = tourService;
+        this.guideService = guideService;
+        this.driverService = driverService;
         initTable();
         setSizeFull();
     }
@@ -34,17 +40,21 @@ public class ListToursView extends VerticalLayout {
         var toursList = tourService.getAll();
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.setSizeFull();
+        // FIXME: 6/8/20 when accessing in the same time from another device=>org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.stas.tourManager.frontend.views.ListToursView': Bean instantiation via constructor failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.stas.tourManager.frontend.views.ListToursView]: Constructor threw exception; nested exception is java.lang.IllegalStateException: Cannot access state in VaadinSession or UI without locking the session.
+        grid.setColumns("title", "from", "to", "description");
         // add edit button to each row.
-        grid.setColumns("title", "from","to", "description");
-        grid.addComponentColumn(driver -> {
+        grid.addComponentColumn(tour -> {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            //editButton.addClickListener(e -> new AddDriverForm(true, driver, driverService).open());
+            editButton.addClickListener(e -> new AddTourForm(true, "Edit tour: "+tour.getTitle(),
+                    guideService, driverService)
+                    .open());
             return editButton;
         }).setHeader(createButton);
 
-        // set content fit to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
+        // truncate description column
+        grid.getColumnByKey("description").setAutoWidth(false).setWidth("200px");
         grid.setItems(toursList);
         add(grid);
     }
@@ -53,7 +63,8 @@ public class ListToursView extends VerticalLayout {
         createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
         var plusIcon = VaadinIcon.PLUS.create();
         createButton.setIcon(plusIcon);
-        //createButton.addClickListener(e -> new AddTourForm().open());
+        createButton.addClickListener(e -> new AddTourForm(false, "Create new tour",
+                guideService, driverService).open());
     }
 
 }

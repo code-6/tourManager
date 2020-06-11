@@ -14,7 +14,7 @@ $(function () {
     }, function (start, end, label) {
         const pattern = "DD-MM-YYYY HH:mm";
         $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));
-    });
+    }).focus();
 });
 
 $(function() {

@@ -10,14 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class AddDriverForm extends AddParticipantForm {
     // note that field name shall be equal to pojos property name. Otherwise binder will not map data.
-    private ComboBox<Car> car = new ComboBox<>();
+    private ComboBox<String> car = new ComboBox<>();
     private Binder<Driver> binder = new BeanValidationBinder<>(Driver.class);
 
     @Autowired
     private final DriverService driverService;
 
-    public AddDriverForm(boolean withDelete, Driver driver, DriverService driverService) {
-        super(withDelete);
+    public AddDriverForm(boolean withDelete, String title, Driver driver, DriverService driverService) {
+        super(withDelete, title);
 
         binder.bindInstanceFields(this);
         binder.setBean(driver);
@@ -56,7 +56,7 @@ public class AddDriverForm extends AddParticipantForm {
 
     private void setupComboBox() {
         car.setItems(Car.getCars());
-        car.setItemLabelGenerator(Car::getCar);
+        //car.setItemLabelGenerator(Car::getCar);
         car.setAllowCustomValue(true);
         car.addCustomValueSetListener(event -> {
             var source = event.getDetail();

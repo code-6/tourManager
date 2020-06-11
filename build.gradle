@@ -1,7 +1,7 @@
 plugins {
-	id 'org.springframework.boot' version '2.2.6.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
 }
 
 group = 'com.stas'
@@ -9,50 +9,56 @@ version = '0.0.1-NO_DB'
 sourceCompatibility = '11'
 
 configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
 }
 
 repositories {
-	maven{
-		url "https://maven.vaadin.com/vaadin-addons"
-	}
-	mavenCentral()
+    maven {
+        url "https://maven.vaadin.com/vaadin-addons"
+    }
+    mavenCentral()
 
 }
 
 ext {
-	set('vaadinVersion', "14.1.25")
+    set('vaadinVersion', "14.1.25")
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'com.vaadin:vaadin-spring-boot-starter'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.h2database:h2'
-	testImplementation('org.springframework.boot:spring-boot-starter-test') {
-		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-	}
-	// https://mvnrepository.com/artifact/joda-time/joda-time
-	compile group: 'joda-time', name: 'joda-time', version: '2.10.6'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.vaadin:vaadin-spring-boot-starter'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    //todo: change runtimeOnly to something else, if need to manipulate DB from code.
+    runtimeOnly 'com.h2database:h2'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    // https://mvnrepository.com/artifact/joda-time/joda-time
+    compile group: 'joda-time', name: 'joda-time', version: '2.10.6'
 
-	// https://mvnrepository.com/artifact/com.github.javafaker/javafaker
-	compile group: 'com.github.javafaker', name: 'javafaker', version: '1.0.2'
+    // https://mvnrepository.com/artifact/com.github.javafaker/javafaker todo: remove for production
+    compile group: 'com.github.javafaker', name: 'javafaker', version: '1.0.2'
 
-	// vaadin additional components
-	// https://mvnrepository.com/artifact/com.vaadin/vaadin-confirm-dialog-flow
-	implementation group: 'com.vaadin', name: 'vaadin-confirm-dialog-flow', version: '3.0.0'
-	implementation group: 'org.vaadin.addons', name: 'vaadin-bootstrap-datetimerangepicker', version: '2.0'
+    // vaadin additional components
+    // https://mvnrepository.com/artifact/com.vaadin/vaadin-confirm-dialog-flow
+//    implementation group: 'com.vaadin', name: 'vaadin-confirm-dialog-flow', version: '3.0.0'
+//    implementation group: 'org.vaadin.addons', name: 'vaadin-bootstrap-datetimerangepicker', version: '2.0'
+    // https://mvnrepository.com/artifact/org.vaadin.gatanaso/multiselect-combo-box-flow
+    compile group: 'org.vaadin.gatanaso', name: 'multiselect-combo-box-flow', version: '3.0.1'
+    // https://mvnrepository.com/artifact/com.vaadin/vaadin-upload-flow
+    compile group: 'com.vaadin', name: 'vaadin-upload-flow', version: '3.1.0'
+
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
-	}
+    imports {
+        mavenBom "com.vaadin:vaadin-bom:${vaadinVersion}"
+    }
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

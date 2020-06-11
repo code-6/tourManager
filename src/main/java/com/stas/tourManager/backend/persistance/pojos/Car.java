@@ -4,24 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Car {
-    private static List<Car> cars = new ArrayList<>();
+    private static List<String> cars = new ArrayList<>();
     private String car;
 
     private Car(String car) {
         this.car = car;
     }
 
-    public static Car createCar(String car){
-        var c = new Car(car);
-        cars.add(c);
-        return c;
+    public static String createCar(String car){
+        cars.add(car);
+        return car;
     }
 
     public String getCar() {
         return car;
     }
 
-    public static List<Car> getCars() {
+    public static List<String> getCars() {
         return cars;
     }
 

@@ -39,7 +39,7 @@ public class ListGuidesView extends VerticalLayout {
         createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
         var plusIcon = VaadinIcon.PLUS.create();
         createButton.setIcon(plusIcon);
-        createButton.addClickListener(e -> new AddGuideForm(false, new Guide(), guideService).open());
+        createButton.addClickListener(e -> new AddGuideForm(false, "Create new Guide",new Guide(), guideService).open());
     }
 
     /**
@@ -68,13 +68,15 @@ public class ListGuidesView extends VerticalLayout {
         grid.addComponentColumn(g -> {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            editButton.addClickListener(e -> new AddGuideForm(true, g, guideService).open());
+            var title = "Edit guide: "+g.getFullName();
+            editButton.addClickListener(e -> new AddGuideForm(true, title, g, guideService).open());
             return editButton;
         }).setHeader(createButton);
 
         // set content fit to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
         grid.setItems(guidesList);
+        //grid.getEditor().setBuffered(true);
         add(grid);
     }
 }
