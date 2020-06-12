@@ -27,6 +27,8 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
@@ -178,7 +180,7 @@ public class AddTourForm extends FormLayout {
         drivers.setSizeFull();
     }
 
-    private void configBinder(Tour tour){
+    private void configBinder(Tour tour) {
         binder.forField(date)
                 .withConverter(new String2IntervalConverter())
                 .bind(Tour::getDate, Tour::setDate);
@@ -214,14 +216,15 @@ public class AddTourForm extends FormLayout {
         this.tour = tour;
     }
 
-    static class String2IntervalConverter implements Converter<String, Interval>{
+    static class String2IntervalConverter implements Converter<String, Interval> {
+        private DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
 
         @Override
         public Result<Interval> convertToModel(String value, ValueContext context) {
-            log.debug("Convert date from string to interval. String value: "+value);
+            log.debug("Convert date from string to interval. String value: " + value);
             var arr = value.split("-");
-            var from = DateTime.parse(arr[0]);
-            var to = DateTime.parse(arr[1]);
+            var from = DateTime.parse(arr[0], dtf);
+            var to = DateTime.parse(arr[1], dtf);
             var interval = new Interval(from, to);
             // TODO: 12.06.2020 test Interval.parse method
             return Result.ok(interval);
@@ -231,16 +234,16 @@ public class AddTourForm extends FormLayout {
         public String convertToPresentation(Interval value, ValueContext context) {
             DateTime from;
             DateTime to;
-            try{
+            try {
                 from = value.getStart();
                 to = value.getEnd();
                 return String.format("%s-%s", from.toString(DATE_TIME_PATTERN), to.toString(DATE_TIME_PATTERN));
                 // fix error when press on add tour button.
-            }catch (NullPointerException e){
-                log.error("Interval id null. "+e.getMessage()+" get current date without time.");
+            } catch (NullPointerException e) {
+                log.error("Interval id null. " + e.getMessage() + " get current date without time.");
 
-                from = new DateTime().withTime(0,0,0,0);
-                to = new DateTime().withTime(0,0,0,0);
+                from = new DateTime().withTime(0, 0, 0, 0);
+                to = new DateTime().withTime(0, 0, 0, 0);
                 return String.format("%s-%s", from.toString(DATE_TIME_PATTERN), to.toString(DATE_TIME_PATTERN));
             }
         }
