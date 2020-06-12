@@ -4,20 +4,24 @@ if (typeof jQuery !== 'undefined') {
     alert("jQuery is not loaded in a javascript file");
 }
 
-$(function () {
+$(document).ready(function () {
     $('#daterange').daterangepicker({
-        timePicker: true,
-        timePicker24Hour: true,
-        timePickerIncrement: 5,
-        autoApply: true,
-        cancelLabel: 'Clear'
-    }, function (start, end, label) {
-        const pattern = "DD-MM-YYYY HH:mm";
-        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));
-    }).focus();
+            timePicker: true,
+            timePicker24Hour: true,
+            timePickerIncrement: 5,
+            autoApply: true,
+            cancelLabel: 'Clear'
+        }, function (start, end, label) {
+            const pattern = "DD.MM.YYYY HH:mm";
+            $('#daterange').val(start.format(pattern) + '-' + end.format(pattern));
+        });
 });
 
-$(function() {
+$(document).ready(function () {
+    $("body").has("vaadin-dialog-overlay")
+});
+
+$(function () {
     $('#daterange').daterangepicker({
         timePicker: true,
         startDate: moment().startOf('hour'),

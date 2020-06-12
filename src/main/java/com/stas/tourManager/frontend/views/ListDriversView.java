@@ -53,11 +53,11 @@ public class ListDriversView extends VerticalLayout {
 //        });
 
         grid.setSizeFull();
-        try {
-            grid.removeColumnByKey("car");
-        } catch (IllegalArgumentException e) {
-            logger.error("unable to remove column 'car'.\n" + e.getMessage());
-        }
+//        try {
+//            grid.removeColumnByKey("car");
+//        } catch (IllegalArgumentException e) {
+//            logger.error("unable to remove column 'car'.\n" + e.getMessage());
+//        }
         /* note that set columns shall follow right after remove column. otherwise possible illegalStateException.
          * FIX: 4/29/20 resolve IllegalArgumentException when deleting column 'language'
          * */
