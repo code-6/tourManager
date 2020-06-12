@@ -6,32 +6,37 @@ import com.stas.tourManager.backend.persistance.pojos.Tour;
 import com.stas.tourManager.backend.persistance.services.DriverService;
 import com.stas.tourManager.backend.persistance.services.GuideService;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
-import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Result;
+import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.converter.Converter;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
 @JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
 @JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
 @JavaScript("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
-public class AddTourForm extends Dialog {
+public class AddTourForm extends FormLayout {
+    private static final String DATE_TIME_PATTERN = "dd.MM.yyyy hh:mm";
+    private Tour tour;
+
     private GuideService guideService;
     private DriverService driverService;
 
@@ -68,6 +73,7 @@ public class AddTourForm extends Dialog {
         if (!withDelete)
             deleteButton.setVisible(false);
 
+        configBinder(tour);
         configHeader(title);
         configButtons();
         configComboBoxes();
@@ -76,15 +82,35 @@ public class AddTourForm extends Dialog {
 
         add(mainLayout);
 
-        setCloseOnOutsideClick(false);
-        setCloseOnEsc(true);
+        setMinWidth("400px");
+        setWidth("600px");
+        setId("dialog");
+        setVisible(false);
+    }
+
+    public AddTourForm(boolean withDelete, String title, Tour tour, GuideService guideService, DriverService driverService) {
+        this.guideService = guideService;
+        this.driverService = driverService;
+        this.tour = tour;
+
+        if (!withDelete)
+            deleteButton.setVisible(false);
+        configHeader(title);
+        configButtons();
+        configComboBoxes();
+        configFields();
+        configLayouts();
+        configBinder(tour);
+
+        add(mainLayout);
 
         setMinWidth("400px");
         setWidth("600px");
         setId("dialog");
+        setVisible(false);
     }
 
-    private void configHeader(String title) {
+    public void configHeader(String title) {
         headerLabel.setText(title);
         header.setFlexGrow(1, this.title);
         header.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -99,7 +125,7 @@ public class AddTourForm extends Dialog {
     }
 
     private void configButtons() {
-        cancelButton.addClickListener(e -> close());
+        cancelButton.addClickListener(e -> setVisible(false));
 
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
@@ -109,8 +135,8 @@ public class AddTourForm extends Dialog {
         deleteButton.addClickListener(event -> {
             new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
                 System.out.println("YAHOOO! Confirmed");
-                close();
             }).open();
+            setVisible(false);
         });
     }
 
@@ -148,6 +174,14 @@ public class AddTourForm extends Dialog {
         drivers.setSizeFull();
     }
 
+    private void configBinder(Tour tour){
+        binder.forField(date)
+                .withConverter(new String2IntervalConverter())
+                .bind(Tour::getDate, Tour::setDate);
+        binder.bindInstanceFields(this);
+        binder.setBean(tour);
+    }
+
     @Override
     protected void onAttach(AttachEvent event) {
         super.onAttach(event);
@@ -166,5 +200,33 @@ public class AddTourForm extends Dialog {
                 "    });\n" +
                 "});");
 
+    }
+
+    public Tour getTour() {
+        return tour;
+    }
+
+    public void setTour(Tour tour) {
+        this.tour = tour;
+    }
+
+    static class String2IntervalConverter implements Converter<String, Interval>{
+
+        @Override
+        public Result<Interval> convertToModel(String value, ValueContext context) {
+            var arr = value.split("-");
+            var from = new DateTime(arr[0]);
+            var to = new DateTime(arr[1]);
+            var interval = new Interval(from, to);
+            // TODO: 12.06.2020 test Interval.parse method
+            return Result.ok(interval);
+        }
+
+        @Override
+        public String convertToPresentation(Interval value, ValueContext context) {
+            var from = value.getStart();
+            var to = value.getEnd();
+            return String.format("%s-%s", from.toString(DATE_TIME_PATTERN), to.toString(DATE_TIME_PATTERN));
+        }
     }
 }

@@ -11,9 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Tour extends AbstractEntity {
     private Logger logger = LoggerFactory.getLogger(Tour.class);
@@ -22,8 +20,8 @@ public class Tour extends AbstractEntity {
     private String title;
     private String description;
     private Interval date;
-    private List<Guide> guides = new ArrayList<>();
-    private List<Driver> drivers = new ArrayList<>();
+    private Set<Guide> guides = new HashSet<>();
+    private Set<Driver> drivers = new HashSet<>();
     private String file;
 
     private String from, to;
@@ -118,23 +116,23 @@ public class Tour extends AbstractEntity {
 
     public void setDate(Interval date) {
         this.date = date;
-        from = date.getStart().toString("dd-MM-yyyy hh:mm");
-        to = date.getEnd().toString("dd-MM-yyyy hh:mm");
+        from = date.getStart().toString("dd.MM.yyyy hh:mm");
+        to = date.getEnd().toString("dd.MM.yyyy hh:mm");
     }
 
-    public List<Guide> getGuides() {
+    public Set<Guide> getGuides() {
         return guides;
     }
 
-    public void setGuides(List<Guide> guides) {
+    public void setGuides(Set<Guide> guides) {
         this.guides = guides;
     }
 
-    public List<Driver> getDrivers() {
+    public Set<Driver> getDrivers() {
         return drivers;
     }
 
-    public void setDrivers(List<Driver> drivers) {
+    public void setDrivers(Set<Driver> drivers) {
         this.drivers = drivers;
     }
 

@@ -9,62 +9,86 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
 
 @Route(value = "tours", layout = MainLayout.class)
-public class ListToursView extends VerticalLayout {
+public class ListToursView extends HorizontalLayout {
     private Logger logger = LoggerFactory.getLogger(ListToursView.class);
-    private static TourService tourService;
-    private static GuideService guideService;
-    private static DriverService driverService;
+
+    private TourService tourService;
+
+    private GuideService guideService;
+
+    private DriverService driverService;
+
     private static Grid<Tour> grid = new Grid<>(Tour.class);
     private final Button createButton = new Button("add");
+
+//    public static void updateTable() {
+//        grid.setItems(tourService.getAll());
+//    }
 
     public ListToursView(TourService tourService, GuideService guideService, DriverService driverService) {
         this.tourService = tourService;
         this.guideService = guideService;
         this.driverService = driverService;
-        initTable();
+
+        init();
+    }
+
+    private void init() {
+
         setSizeFull();
-    }
-
-    public static void updateTable() {
-        grid.setItems(tourService.getAll());
-    }
-
-    private void initTable() {
-        initCreateButton();
         var toursList = tourService.getAll();
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.setSizeFull();
-        // FIXME: 6/8/20 when accessing in the same time from another device=>org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.stas.tourManager.frontend.views.ListToursView': Bean instantiation via constructor failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.stas.tourManager.frontend.views.ListToursView]: Constructor threw exception; nested exception is java.lang.IllegalStateException: Cannot access state in VaadinSession or UI without locking the session.
-        grid.setColumns("title", "from", "to", "description");
-        // add edit button to each row.
-        grid.addComponentColumn(tour -> {
-            var editButton = new Button("edit", VaadinIcon.EDIT.create());
-            editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-            editButton.addClickListener(e -> new AddTourForm(true, "Edit tour: "+tour.getTitle(),
-                    guideService, driverService)
-                    .open());
-            return editButton;
-        }).setHeader(createButton);
+
+        try {
+            // FIXME: 6/8/20 when accessing in the same time from another device=>org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.stas.tourManager.frontend.views.ListToursView': Bean instantiation via constructor failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.stas.tourManager.frontend.views.ListToursView]: Constructor threw exception; nested exception is java.lang.IllegalStateException: Cannot access state in VaadinSession or UI without locking the session.
+            grid.setColumns("title", "from", "to", "description");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
         // truncate description column
         grid.getColumnByKey("description").setAutoWidth(false).setWidth("200px");
         grid.setItems(toursList);
+
+        initButtons();
+
         add(grid);
     }
 
-    private void initCreateButton() {
+    private void initButtons() {
         createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
         var plusIcon = VaadinIcon.PLUS.create();
         createButton.setIcon(plusIcon);
-        createButton.addClickListener(e -> new AddTourForm(false, "Create new tour",
-                guideService, driverService).open());
+
+        createButton.addClickListener(e -> {
+            var form = new AddTourForm(false, "Create new tour", new Tour(), guideService, driverService);
+            form.setVisible(true);
+            add(form);
+        });
+        // add edit button to each row.
+        grid.addComponentColumn(tour -> {
+            var editButton = new Button("edit", VaadinIcon.EDIT.create());
+            editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
+            editButton.addClickListener(e -> {
+                var form = new AddTourForm(false, "Create new tour", tour, guideService, driverService);
+                form.configHeader("Edit tour: " + tour.getTitle());
+                form.setVisible(true);
+                add(form);
+            });
+            return editButton;
+        }).setHeader(createButton);
     }
+
 
 }
