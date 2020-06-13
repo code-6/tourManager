@@ -40,7 +40,15 @@ import org.vaadin.gatanaso.MultiselectComboBox;
 public class AddTourForm extends FormLayout {
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
 
-    private static final String DATE_TIME_PATTERN = "dd.MM.yyyy hh:mm";
+    private static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm";
+    private static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
+    private static DateTime start, end;
+//
+//    static {
+//        start = new DateTime().withTimeAtStartOfDay();
+//        end = new DateTime().withTimeAtStartOfDay();
+//    }
+
     private Tour tour;
 
     private GuideService guideService;
@@ -110,7 +118,7 @@ public class AddTourForm extends FormLayout {
 
         add(mainLayout);
 
-        setMinWidth("400px");
+        setMinWidth("600px");
         setWidth("600px");
         setId("dialog");
         setVisible(false);
@@ -191,23 +199,31 @@ public class AddTourForm extends FormLayout {
     @Override
     protected void onAttach(AttachEvent event) {
         super.onAttach(event);
-
-        // executing JS should be avoided in constructor
-        getElement().executeJs("$(function () {\n" +
+        // FIXME: 13.06.2020 why after date.toString time from 00:00 converted to 12:00?
+        var script = String.format("$(function () {\n" +
                 "    $('#daterange').daterangepicker({\n" +
                 "        timePicker: true,\n" +
                 "        timePicker24Hour: true,\n" +
                 "        timePickerIncrement: 5,\n" +
                 "        autoApply: true,\n" +
-                "        cancelLabel: 'Clear'\n" +
+                "        startDate: '%s',\n" +
+                "        endDate: '%s',\n" +
+                "        cancelLabel: 'Clear',\n" +
+                "        locale: {\n" +
+                "           format: 'DD.MM.YYYY HH:mm'\n" +
+                "        }\n" +
                 "    }, function (start, end, label) {\n" +
                 "        const pattern = \"DD.MM.YYYY HH:mm\";\n" +
                 "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
                 "    });\n" +
-                "});");
+                "});", dtf.print(start), dtf.print(end));
+        log.debug("JS SCRIPT BEFORE EXECUTE: "+script);
+        // executing JS should be avoided in constructor
+        getElement().executeJs(script);
 
     }
 
+    //region getters/setters
     public Tour getTour() {
         return tour;
     }
@@ -215,13 +231,13 @@ public class AddTourForm extends FormLayout {
     public void setTour(Tour tour) {
         this.tour = tour;
     }
+    //endregion
 
     static class String2IntervalConverter implements Converter<String, Interval> {
-        private DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
+
 
         @Override
         public Result<Interval> convertToModel(String value, ValueContext context) {
-            log.debug("Convert date from string to interval. String value: " + value);
             var arr = value.split("-");
             var from = DateTime.parse(arr[0], dtf);
             var to = DateTime.parse(arr[1], dtf);
@@ -232,20 +248,18 @@ public class AddTourForm extends FormLayout {
 
         @Override
         public String convertToPresentation(Interval value, ValueContext context) {
-            DateTime from;
-            DateTime to;
             try {
-                from = value.getStart();
-                to = value.getEnd();
-                return String.format("%s-%s", from.toString(DATE_TIME_PATTERN), to.toString(DATE_TIME_PATTERN));
+                start = value.getStart();
+                end = value.getEnd();
                 // fix error when press on add tour button.
             } catch (NullPointerException e) {
-                log.error("Interval id null. " + e.getMessage() + " get current date without time.");
-
-                from = new DateTime().withTime(0, 0, 0, 0);
-                to = new DateTime().withTime(0, 0, 0, 0);
-                return String.format("%s-%s", from.toString(DATE_TIME_PATTERN), to.toString(DATE_TIME_PATTERN));
+                log.debug("Interval id null get current date without time.");
+                start = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
+                end = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
             }
+            return String.format("%s-%s", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
         }
     }
+
+
 }
