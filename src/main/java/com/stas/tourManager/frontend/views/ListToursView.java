@@ -21,7 +21,7 @@ import javax.annotation.PostConstruct;
 public class ListToursView extends HorizontalLayout {
     private Logger logger = LoggerFactory.getLogger(ListToursView.class);
 
-    private TourService tourService;
+    private static TourService tourService;
 
     private GuideService guideService;
 
@@ -65,6 +65,12 @@ public class ListToursView extends HorizontalLayout {
 
         add(grid);
     }
+    /**
+     * @// FIXME: 4/28/20 bad solution. Used in add view to update list after apply changes in row
+     */
+    public static void updateTable() {
+        grid.setItems(tourService.getAll());
+    }
 
     private void initButtons() {
         createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
@@ -72,7 +78,7 @@ public class ListToursView extends HorizontalLayout {
         createButton.setIcon(plusIcon);
 
         createButton.addClickListener(e -> {
-            var form = new AddTourForm(false, "Create new tour", new Tour(), guideService, driverService);
+            var form = new AddTourForm(false, "Create new tour", new Tour(), guideService, driverService, tourService);
             form.setVisible(true);
             add(form);
         });
@@ -81,7 +87,7 @@ public class ListToursView extends HorizontalLayout {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
             editButton.addClickListener(e -> {
-                var form = new AddTourForm(false, "Create new tour", tour, guideService, driverService);
+                var form = new AddTourForm(false, "Create new tour", tour, guideService, driverService, tourService);
                 form.configHeader("Edit tour: " + tour.getTitle());
                 form.setVisible(true);
                 add(form);

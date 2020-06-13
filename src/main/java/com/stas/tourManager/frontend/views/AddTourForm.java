@@ -5,6 +5,7 @@ import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
 import com.stas.tourManager.backend.persistance.services.DriverService;
 import com.stas.tourManager.backend.persistance.services.GuideService;
+import com.stas.tourManager.backend.persistance.services.TourService;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
+// FIXME: 13.06.2020 make description and upload fields symmetric.
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
 @JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
 @JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
@@ -53,6 +55,7 @@ public class AddTourForm extends FormLayout {
 
     private GuideService guideService;
     private DriverService driverService;
+    private TourService tourService;
 
     private Label headerLabel = new Label();
 
@@ -80,9 +83,10 @@ public class AddTourForm extends FormLayout {
     private Binder<Tour> binder = new BeanValidationBinder<>(Tour.class);
 
     // FIXME: 11.06.2020 overlay of datepicker by dialog window, picker hides after try to press on it.
-    public AddTourForm(boolean withDelete, String title, GuideService guideService, DriverService driverService) {
+    public AddTourForm(boolean withDelete, String title, GuideService guideService, DriverService driverService, TourService tourService) {
         this.guideService = guideService;
         this.driverService = driverService;
+        this.tourService = tourService;
 
         if (!withDelete)
             deleteButton.setVisible(false);
@@ -102,9 +106,10 @@ public class AddTourForm extends FormLayout {
         setVisible(false);
     }
 
-    public AddTourForm(boolean withDelete, String title, Tour tour, GuideService guideService, DriverService driverService) {
+    public AddTourForm(boolean withDelete, String title, Tour tour, GuideService guideService, DriverService driverService,TourService tourService) {
         this.guideService = guideService;
         this.driverService = driverService;
+        this.tourService = tourService;
         this.tour = tour;
 
         if (!withDelete)
@@ -143,6 +148,11 @@ public class AddTourForm extends FormLayout {
 
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        saveButton.addClickListener(e->{
+           save();
+           ListToursView.updateTable();
+           setVisible(false);
+        });
 
         deleteButton.addClickShortcut(Key.DELETE);
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
@@ -152,6 +162,15 @@ public class AddTourForm extends FormLayout {
             }).open();
             setVisible(false);
         });
+    }
+
+    private void save() {
+        if(binder.isValid()){
+            Tour tour = binder.getBean();
+            tourService.add(tour);
+        }else {
+            log.error("Unable to create tour! ");
+        }
     }
 
     private void configFields() {
