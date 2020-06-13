@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 // FIXME: 13.06.2020 make description and upload fields symmetric.
+// FIXME: 13.06.2020 date picker don't appears if edit tour
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
 @JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
 @JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
@@ -167,7 +168,7 @@ public class AddTourForm extends FormLayout {
     private void save() {
         if(binder.isValid()){
             Tour tour = binder.getBean();
-            tourService.add(tour);
+            tourService.saveOrUpdate(tour);
         }else {
             log.error("Unable to create tour! ");
         }
@@ -218,7 +219,7 @@ public class AddTourForm extends FormLayout {
     @Override
     protected void onAttach(AttachEvent event) {
         super.onAttach(event);
-        // FIXME: 13.06.2020 why after date.toString time from 00:00 converted to 12:00?
+        // FIXME: 13.06.2020 possibly no need to use format in value setting because used locale in js script
         var script = String.format("$(function () {\n" +
                 "    $('#daterange').daterangepicker({\n" +
                 "        timePicker: true,\n" +

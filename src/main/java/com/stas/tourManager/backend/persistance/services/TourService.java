@@ -4,8 +4,6 @@ import com.github.javafaker.Faker;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
 import org.joda.time.Interval;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,9 +17,13 @@ public class TourService {
     private Logger log = LoggerFactory.getLogger(TourService.class);
     private List<Tour> tours = new ArrayList<>();
 
-    public void add(Tour tour) {
-        tours.add(tour);
-        log.info("create new tour: " + tour.toString());
+    public void saveOrUpdate(Tour tour) {
+        if(!exist(tour)){
+            tours.add(tour);
+            log.info("create new tour: " + tour.toString());
+        }else{
+            update(tour);
+        }
     }
 
     public List<Tour> getAll(){
@@ -45,9 +47,11 @@ public class TourService {
         for (int i = 0; i < tours.size(); i++) {
             if (tours.get(i).getId() == newTour.getId()) {
                 tours.set(i, newTour);
+                log.info("update tour: " + newTour.toString());
                 break;
             }
         }
+
     }
 
     @PostConstruct
@@ -61,7 +65,7 @@ public class TourService {
             tour.addDriver(DriverService.getRandomDriver());
             tour.addGuide(GuideService.getRandomGuide());
             tour.setFile(faker.file().fileName());
-            add(tour);
+            saveOrUpdate(tour);
         }
         log.debug("init tours complete");
     }
