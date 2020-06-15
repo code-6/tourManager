@@ -43,13 +43,15 @@ import org.vaadin.gatanaso.MultiselectComboBox;
 public class AddTourForm extends FormLayout {
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
 
-    private static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm";
-    private static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
+    public static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm";
+    public static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
     private static DateTime start, end;
 
     static {
         start = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
         end = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
+
+        System.out.println("PRINT DATE = "+dtf.print(start));
     }
 
     private Tour tour;
@@ -114,54 +116,6 @@ public class AddTourForm extends FormLayout {
         configBinder(tour);
         setVisible(true);
     }
-
-//    // FIXME: 11.06.2020 overlay of datepicker by dialog window, picker hides after try to press on it.
-//    public AddTourForm(boolean withDelete, String title, GuideService guideService, DriverService driverService, TourService tourService) {
-//        this.guideService = guideService;
-//        this.driverService = driverService;
-//        this.tourService = tourService;
-//
-//        if (!withDelete)
-//            deleteButton.setVisible(false);
-//
-//        configBinder(tour);
-//        configHeader(title);
-//        configButtons();
-//        configComboBoxes();
-//        configFields();
-//        configLayouts();
-//
-//        add(mainLayout);
-//
-//        setMinWidth("400px");
-//        setWidth("600px");
-//        setId("dialog");
-//        setVisible(false);
-//    }
-//
-//    public AddTourForm(boolean withDelete, String title, Tour tour, GuideService guideService, DriverService driverService, TourService tourService) {
-//        this.guideService = guideService;
-//        this.driverService = driverService;
-//        this.tourService = tourService;
-//        this.tour = tour;
-//
-//        if (!withDelete)
-//            deleteButton.setVisible(false);
-//
-//        configHeader(title);
-//        configButtons();
-//        configComboBoxes();
-//        configFields();
-//        configLayouts();
-//        configBinder(tour);
-//
-//        add(mainLayout);
-//
-//        setMinWidth("600px");
-//        setWidth("600px");
-//        setId("dialog");
-//        setVisible(false);
-//    }
 
     public void configHeader(String title) {
         headerLabel.setText(title);
@@ -245,6 +199,7 @@ public class AddTourForm extends FormLayout {
 
     private void configBinder(Tour tour) {
         binder.forField(date)
+                .withNullRepresentation("")
                 .withConverter(new String2IntervalConverter())
                 .bind(Tour::getDate, Tour::setDate);
 
@@ -295,12 +250,16 @@ public class AddTourForm extends FormLayout {
 
         @Override
         public Result<Interval> convertToModel(String value, ValueContext context) {
-            var arr = value.split("-");
-            var from = DateTime.parse(arr[0], dtf);
-            var to = DateTime.parse(arr[1], dtf);
-            var interval = new Interval(from, to);
-            // TODO: 12.06.2020 test Interval.parse method
-            return Result.ok(interval);
+            try {
+                var arr = value.split("-");
+                var from = DateTime.parse(arr[0], dtf);
+                var to = DateTime.parse(arr[1], dtf);
+                var interval = new Interval(from, to);
+                // TODO: 12.06.2020 test Interval.parse method
+                return Result.ok(interval);
+            }catch (NullPointerException e){
+                return Result.ok(null);
+            }
         }
 
         @Override
@@ -311,6 +270,7 @@ public class AddTourForm extends FormLayout {
                 // fix error when press on add tour button.
             } catch (NullPointerException e) {
                 // ignored, return current date with zero time by default.
+                return "";
             }
             var result = String.format("%s-%s", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
             log.debug("Date-time range to return: "+result);

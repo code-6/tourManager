@@ -10,9 +10,12 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.format.DateTimeFormatter;
 
 @Route(value = "tours", layout = MainLayout.class)
 public class ListToursView extends HorizontalLayout {
@@ -47,12 +50,32 @@ public class ListToursView extends HorizontalLayout {
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.setSizeFull();
 
-        try {
-            // FIXME: 6/8/20 when accessing in the same time from another device=>org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.stas.tourManager.frontend.views.ListToursView': Bean instantiation via constructor failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.stas.tourManager.frontend.views.ListToursView]: Constructor threw exception; nested exception is java.lang.IllegalStateException: Cannot access state in VaadinSession or UI without locking the session.
-            grid.setColumns("title", "from", "to", "description");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            // FIXME: 6/8/20 when accessing in the same time from another device=>org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'com.stas.tourManager.frontend.views.ListToursView': Bean instantiation via constructor failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.stas.tourManager.frontend.views.ListToursView]: Constructor threw exception; nested exception is java.lang.IllegalStateException: Cannot access state in VaadinSession or UI without locking the session.
+//            grid.setColumns("title", "description");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+        grid.removeColumns(grid.getColumnByKey("title"),
+                grid.getColumnByKey("from"),
+                grid.getColumnByKey("to"),
+                grid.getColumnByKey("description"),
+                grid.getColumnByKey("guides"),
+                grid.getColumnByKey("drivers"),
+                grid.getColumnByKey("file"),
+                grid.getColumnByKey("date"));
+
+        grid.addColumn("title").setHeader("Title").setSortable(true);
+        // LocalDateTimeRenderer for date and time
+        grid.addColumn(new DateTimeRenderer<>(Tour::getFrom,
+                AddTourForm.dtf))
+                .setHeader("From").setSortable(true);
+
+        grid.addColumn(new DateTimeRenderer<>(Tour::getTo,
+                AddTourForm.dtf))
+                .setHeader("To").setSortable(true);
+
+        grid.addColumn("description").setHeader("Description");
 
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
         // truncate description column

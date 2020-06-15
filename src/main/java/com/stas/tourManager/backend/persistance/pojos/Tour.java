@@ -1,17 +1,15 @@
 package com.stas.tourManager.backend.persistance.pojos;
 
-import com.stas.tourManager.backend.persistance.services.GuideService;
-import com.vaadin.flow.router.OptionalParameter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Tour extends AbstractEntity {
     private Logger logger = LoggerFactory.getLogger(Tour.class);
@@ -24,7 +22,8 @@ public class Tour extends AbstractEntity {
     private Set<Driver> drivers = new HashSet<>();
     private String file;
 
-    private String from, to;
+    private DateTime from;
+    private DateTime to;
 
     public Tour() {
 
@@ -32,21 +31,21 @@ public class Tour extends AbstractEntity {
 
     public void addGuide(Guide guide) {
         guides.add(guide);
-        logger.info("add guide: " + guide.toString() + " to tour: " + title);
+        logger.info("add guide: " + guide.toString() + " to tour: " + this.toString());
     }
 
     public boolean excludeGuide(Guide guide) {
-        logger.info("exclude guide: " + guide.toString() + " from tour: " + title);
+        logger.info("exclude guide: " + guide.toString() + " from tour: " + this.toString());
         return guides.remove(guide);
     }
 
     public void addDriver(Driver driver) {
         drivers.add(driver);
-        logger.info("add driver: " + driver.toString() + " to tour: " + title);
+        logger.info("add driver: " + driver.toString() + " to tour: " + this.toString());
     }
 
     public boolean excludeDriver(Driver driver) {
-        logger.info("exclude driver: " + driver.toString() + " from tour: " + title);
+        logger.info("exclude driver: " + driver.toString() + " from tour: " + this.toString());
         return drivers.remove(driver);
     }
 
@@ -74,6 +73,7 @@ public class Tour extends AbstractEntity {
     public String toString() {
         return "Tour{" +
                 "title='" + title + '\'' +
+                ", id='" + id + '\'' +
                 ", description='" + description + '\'' +
                 ", date=" + date.toString() +
                 ", guides=" + guides.toString() +
@@ -86,11 +86,11 @@ public class Tour extends AbstractEntity {
     //region getters/setters
 
 
-    public String getFrom() {
+    public DateTime getFrom() {
         return from;
     }
 
-    public String getTo() {
+    public DateTime getTo() {
         return to;
     }
 
@@ -116,8 +116,12 @@ public class Tour extends AbstractEntity {
 
     public void setDate(Interval date) {
         this.date = date;
-        from = date.getStart().toString("dd.MM.yyyy hh:mm");
-        to = date.getEnd().toString("dd.MM.yyyy hh:mm");
+        try{
+            from = date.getStart();
+            to = date.getEnd();
+        }catch (NullPointerException e){
+            logger.warn("Set from and to failed because of empty date value");
+        }
     }
 
     public Set<Guide> getGuides() {
