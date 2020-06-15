@@ -56,7 +56,6 @@ public class ListGuidesView extends VerticalLayout {
 //        });
 
         grid.setSizeFull();
-        // FIXME: 6/4/20 IllegalStateException
 //        try {
 //            grid.removeColumnByKey("language");
 //        } catch (IllegalArgumentException e) {

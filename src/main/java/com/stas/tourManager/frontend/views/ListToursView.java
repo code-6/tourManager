@@ -13,13 +13,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.PostConstruct;
 
 @Route(value = "tours", layout = MainLayout.class)
 public class ListToursView extends HorizontalLayout {
-    private Logger logger = LoggerFactory.getLogger(ListToursView.class);
+    private final Logger log = LoggerFactory.getLogger(ListToursView.class);
 
     private static TourService tourService;
 
@@ -30,17 +27,16 @@ public class ListToursView extends HorizontalLayout {
     private AddTourForm form;
 
     private static Grid<Tour> grid = new Grid<>(Tour.class);
-    private final Button createButton = new Button("add");
 
-//    public static void updateTable() {
-//        grid.setItems(tourService.getAll());
-//    }
+    private final Button createButton = new Button("add");
 
     public ListToursView(TourService tourService, GuideService guideService, DriverService driverService) {
         this.tourService = tourService;
         this.guideService = guideService;
         this.driverService = driverService;
-        form = new AddTourForm(false);
+
+        form = new AddTourForm(guideService, driverService, tourService);
+
         init();
     }
 
@@ -66,7 +62,9 @@ public class ListToursView extends HorizontalLayout {
         initButtons();
 
         add(grid);
+        add(form);
     }
+
     /**
      * @// FIXME: 4/28/20 bad solution. Used in add view to update list after apply changes in row
      */
@@ -80,24 +78,17 @@ public class ListToursView extends HorizontalLayout {
         createButton.setIcon(plusIcon);
 
         createButton.addClickListener(e -> {
-            // FIXME: 13.06.2020 possible no need to use 2 different instances of form, enough just to change values.
-            // FIXME: 13.06.2020 bug with picker appearence fixed, but now data not binds.
-            form.init("Create new tour", new Tour(), guideService, driverService, tourService);
-            form.setVisible(true);
-            add(form);
+            form.init(false, "Create new tour", new Tour());
         });
         // add edit button to each row.
         grid.addComponentColumn(tour -> {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
             editButton.addClickListener(e -> {
-                form.init("Edit tour: "+tour.getTitle(), tour, guideService, driverService, tourService);
-                form.setVisible(true);
-                add(form);
+                log.debug("tour data before edit: " + tour.toString());
+                form.init(true, "Edit tour: " + tour.getTitle(), tour);
             });
             return editButton;
         }).setHeader(createButton);
     }
-
-
 }

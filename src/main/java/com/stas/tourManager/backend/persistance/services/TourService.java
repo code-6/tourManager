@@ -45,19 +45,19 @@ public class TourService {
 
     public void update(Tour newTour) {
         for (int i = 0; i < tours.size(); i++) {
-            if (tours.get(i).getId() == newTour.getId()) {
+            var oldTour = tours.get(i);
+            if (oldTour.getId() == newTour.getId()) {
+                log.info("update tour: "+oldTour.getTitle()+"\nold data: "+oldTour.toString()+"\nnew data: " + newTour.toString());
                 tours.set(i, newTour);
-                log.info("update tour: " + newTour.toString());
                 break;
             }
         }
-
     }
 
     @PostConstruct
     public void init() {
         var faker = new Faker();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             var tour = new Tour();
             tour.setTitle(faker.book().title());
             tour.setDescription(faker.yoda().quote());
