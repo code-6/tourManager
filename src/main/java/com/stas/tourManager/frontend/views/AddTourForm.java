@@ -83,6 +83,32 @@ public class AddTourForm extends FormLayout {
 
     private Binder<Tour> binder = new BeanValidationBinder<>(Tour.class);
 
+    public AddTourForm(boolean withDelete) {
+        if (!withDelete)
+            deleteButton.setVisible(false);
+    }
+
+    public void init( String title, Tour tour, GuideService guideService, DriverService driverService, TourService tourService){
+
+        this.guideService = guideService;
+        this.driverService = driverService;
+        this.tourService = tourService;
+
+        configHeader(title);
+        configButtons();
+        configComboBoxes();
+        configBinder(tour);
+        configFields();
+        configLayouts();
+
+        add(mainLayout);
+
+        setMinWidth("400px");
+        setWidth("600px");
+        setId("dialog");
+        setVisible(false);
+    }
+
     // FIXME: 11.06.2020 overlay of datepicker by dialog window, picker hides after try to press on it.
     public AddTourForm(boolean withDelete, String title, GuideService guideService, DriverService driverService, TourService tourService) {
         this.guideService = guideService;

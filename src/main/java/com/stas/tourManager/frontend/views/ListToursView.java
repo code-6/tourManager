@@ -40,7 +40,7 @@ public class ListToursView extends HorizontalLayout {
         this.tourService = tourService;
         this.guideService = guideService;
         this.driverService = driverService;
-        form = new AddTourForm(false, "Create new tour", new Tour(), guideService, driverService, tourService);
+        form = new AddTourForm(false);
         init();
     }
 
@@ -82,7 +82,7 @@ public class ListToursView extends HorizontalLayout {
         createButton.addClickListener(e -> {
             // FIXME: 13.06.2020 possible no need to use 2 different instances of form, enough just to change values.
             // FIXME: 13.06.2020 bug with picker appearence fixed, but now data not binds.
-
+            form.init("Create new tour", new Tour(), guideService, driverService, tourService);
             form.setVisible(true);
             add(form);
         });
@@ -91,9 +91,8 @@ public class ListToursView extends HorizontalLayout {
             var editButton = new Button("edit", VaadinIcon.EDIT.create());
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
             editButton.addClickListener(e -> {
-                form.configHeader("Edit tour: " + tour.getTitle());
+                form.init("Edit tour: "+tour.getTitle(), tour, guideService, driverService, tourService);
                 form.setVisible(true);
-                form.setTour(tour);
                 add(form);
             });
             return editButton;
