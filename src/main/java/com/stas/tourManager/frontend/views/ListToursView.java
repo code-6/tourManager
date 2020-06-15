@@ -10,12 +10,9 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.format.DateTimeFormatter;
 
 @Route(value = "tours", layout = MainLayout.class)
 public class ListToursView extends HorizontalLayout {
@@ -56,14 +53,19 @@ public class ListToursView extends HorizontalLayout {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        grid.removeColumns(grid.getColumnByKey("title"),
-                grid.getColumnByKey("from"),
-                grid.getColumnByKey("to"),
-                grid.getColumnByKey("description"),
-                grid.getColumnByKey("guides"),
-                grid.getColumnByKey("drivers"),
-                grid.getColumnByKey("file"),
-                grid.getColumnByKey("date"));
+        try{
+            grid.removeColumns(grid.getColumnByKey("title"),
+                    grid.getColumnByKey("from"),
+                    grid.getColumnByKey("to"),
+                    grid.getColumnByKey("description"),
+                    grid.getColumnByKey("guides"),
+                    grid.getColumnByKey("drivers"),
+                    grid.getColumnByKey("file"),
+                    grid.getColumnByKey("date"));
+
+        }catch (NullPointerException e){
+            // fix java.lang.NullPointerException: column should not be null
+        }
 
         grid.addColumn("title").setHeader("Title").setSortable(true);
         // LocalDateTimeRenderer for date and time
