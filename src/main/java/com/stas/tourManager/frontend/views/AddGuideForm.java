@@ -79,7 +79,6 @@ public class AddGuideForm extends AddParticipantForm {
                 language.setInvalid(false);
                 language.setErrorMessage(null);
             } catch (LanguageService.InvalidLanguageException e) {
-                // todo: display error notification to user.
                 log.debug("Language: "+source+" is invalid!");
                 language.setInvalid(true);
                 language.setErrorMessage("Enter ISO 639 language name");

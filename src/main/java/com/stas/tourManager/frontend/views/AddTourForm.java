@@ -14,6 +14,7 @@ import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -34,8 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
-// FIXME: 13.06.2020 make description and upload fields symmetric.
-// FIXME: 13.06.2020 date picker don't appears if edit tour
+// FIXME: 15.06.2020 refactor code! Add responsive.
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
 @JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
 @JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
@@ -46,11 +46,11 @@ public class AddTourForm extends FormLayout {
     private static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm";
     private static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
     private static DateTime start, end;
-//
-//    static {
-//        start = new DateTime().withTimeAtStartOfDay();
-//        end = new DateTime().withTimeAtStartOfDay();
-//    }
+
+    static {
+        start = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
+        end = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
+    }
 
     private Tour tour;
 
@@ -66,7 +66,7 @@ public class AddTourForm extends FormLayout {
     private MultiselectComboBox<Guide> guides = new MultiselectComboBox<>();
     private MultiselectComboBox<Driver> drivers = new MultiselectComboBox<>();
     private FileBuffer buffer = new FileBuffer();
-    private Upload upload = new Upload(buffer);
+    private Upload file = new Upload(buffer);
 
     protected final Button saveButton = new Button("save");
     protected final Button cancelButton = new Button("cancel");
@@ -75,7 +75,7 @@ public class AddTourForm extends FormLayout {
     protected HorizontalLayout header = new HorizontalLayout(headerLabel);
     protected HorizontalLayout fieldsLayout1 = new HorizontalLayout(title, date);
     protected HorizontalLayout fieldsLayout2 = new HorizontalLayout(guides, drivers);
-    protected HorizontalLayout fieldsLayout3 = new HorizontalLayout(description, upload);
+    protected HorizontalLayout fieldsLayout3 = new HorizontalLayout(description, file);
     protected HorizontalLayout buttonsLayout = new HorizontalLayout(saveButton, cancelButton, deleteButton);
 
     protected VerticalLayout mainLayout = new VerticalLayout(header, fieldsLayout1, fieldsLayout2,
@@ -83,78 +83,85 @@ public class AddTourForm extends FormLayout {
 
     private Binder<Tour> binder = new BeanValidationBinder<>(Tour.class);
 
-    public AddTourForm(boolean withDelete) {
-        if (!withDelete)
-            deleteButton.setVisible(false);
-    }
-
-    public void init( String title, Tour tour, GuideService guideService, DriverService driverService, TourService tourService){
-
+    /**
+     * Required to call init method after create an instance.
+     * fixme: bad solution. Init methods shall not be executed manually. Code is not reusable!
+     * */
+    public AddTourForm(GuideService guideService, DriverService driverService, TourService tourService) {
         this.guideService = guideService;
         this.driverService = driverService;
         this.tourService = tourService;
 
-        configHeader(title);
-        configButtons();
-        configComboBoxes();
-        configBinder(tour);
-        configFields();
         configLayouts();
+        configButtons();
+        configFields();
+        configComboBoxes();
 
         add(mainLayout);
-
-        setMinWidth("400px");
         setWidth("600px");
-        setId("dialog");
-        setVisible(false);
-    }
-
-    // FIXME: 11.06.2020 overlay of datepicker by dialog window, picker hides after try to press on it.
-    public AddTourForm(boolean withDelete, String title, GuideService guideService, DriverService driverService, TourService tourService) {
-        this.guideService = guideService;
-        this.driverService = driverService;
-        this.tourService = tourService;
-
-        if (!withDelete)
-            deleteButton.setVisible(false);
-
-        configBinder(tour);
-        configHeader(title);
-        configButtons();
-        configComboBoxes();
-        configFields();
-        configLayouts();
-
-        add(mainLayout);
-
-        setMinWidth("400px");
-        setWidth("600px");
-        setId("dialog");
-        setVisible(false);
-    }
-
-    public AddTourForm(boolean withDelete, String title, Tour tour, GuideService guideService, DriverService driverService,TourService tourService) {
-        this.guideService = guideService;
-        this.driverService = driverService;
-        this.tourService = tourService;
-        this.tour = tour;
-
-        if (!withDelete)
-            deleteButton.setVisible(false);
-        configHeader(title);
-        configButtons();
-        configComboBoxes();
-        configFields();
-        configLayouts();
-        configBinder(tour);
-
-        add(mainLayout);
-
         setMinWidth("600px");
-        setWidth("600px");
-        setId("dialog");
         setVisible(false);
     }
+
+    public void init(boolean withDelete, String title, Tour tour) {
+
+        if (!withDelete)
+            deleteButton.setVisible(false);
+        else
+            deleteButton.setVisible(true);
+
+        configHeader(title);
+        configBinder(tour);
+        setVisible(true);
+    }
+
+//    // FIXME: 11.06.2020 overlay of datepicker by dialog window, picker hides after try to press on it.
+//    public AddTourForm(boolean withDelete, String title, GuideService guideService, DriverService driverService, TourService tourService) {
+//        this.guideService = guideService;
+//        this.driverService = driverService;
+//        this.tourService = tourService;
+//
+//        if (!withDelete)
+//            deleteButton.setVisible(false);
+//
+//        configBinder(tour);
+//        configHeader(title);
+//        configButtons();
+//        configComboBoxes();
+//        configFields();
+//        configLayouts();
+//
+//        add(mainLayout);
+//
+//        setMinWidth("400px");
+//        setWidth("600px");
+//        setId("dialog");
+//        setVisible(false);
+//    }
+//
+//    public AddTourForm(boolean withDelete, String title, Tour tour, GuideService guideService, DriverService driverService, TourService tourService) {
+//        this.guideService = guideService;
+//        this.driverService = driverService;
+//        this.tourService = tourService;
+//        this.tour = tour;
+//
+//        if (!withDelete)
+//            deleteButton.setVisible(false);
+//
+//        configHeader(title);
+//        configButtons();
+//        configComboBoxes();
+//        configFields();
+//        configLayouts();
+//        configBinder(tour);
+//
+//        add(mainLayout);
+//
+//        setMinWidth("600px");
+//        setWidth("600px");
+//        setId("dialog");
+//        setVisible(false);
+//    }
 
     public void configHeader(String title) {
         headerLabel.setText(title);
@@ -175,27 +182,28 @@ public class AddTourForm extends FormLayout {
 
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        saveButton.addClickListener(e->{
-           save();
-           ListToursView.updateTable();
-           setVisible(false);
+        saveButton.addClickListener(e -> {
+            save();
+            ListToursView.updateTable();
+            setVisible(false);
+            Notification.show("Changes saved", 2000, Notification.Position.TOP_END);
         });
 
         deleteButton.addClickShortcut(Key.DELETE);
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.addClickListener(event -> {
             new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
-                System.out.println("YAHOOO! Confirmed");
+                Notification.show("Deleted !", 2000, Notification.Position.TOP_END);
             }).open();
             setVisible(false);
         });
     }
 
     private void save() {
-        if(binder.isValid()){
+        if (binder.isValid()) {
             Tour tour = binder.getBean();
             tourService.saveOrUpdate(tour);
-        }else {
+        } else {
             log.error("Unable to create tour! ");
         }
     }
@@ -207,12 +215,13 @@ public class AddTourForm extends FormLayout {
         description.setLabel("Description");
         description.setSizeFull();
 
-        upload.addSucceededListener(event -> {
+        file.addSucceededListener(event -> {
             System.out.println("FILE NAME: " + event.getFileName());
+            binder.getBean().setFile(event.getFileName());
         });
-        upload.setSizeFull();
+//        upload.setSizeFull();
+        file.setWidth("87%");
 
-        // TODO: 11.06.2020 make upload and desc fields same width
         date.setId("daterange");
         date.setSizeFull();
     }
@@ -238,7 +247,9 @@ public class AddTourForm extends FormLayout {
         binder.forField(date)
                 .withConverter(new String2IntervalConverter())
                 .bind(Tour::getDate, Tour::setDate);
+
         binder.bindInstanceFields(this);
+
         binder.setBean(tour);
     }
 
@@ -255,6 +266,8 @@ public class AddTourForm extends FormLayout {
                 "        startDate: '%s',\n" +
                 "        endDate: '%s',\n" +
                 "        cancelLabel: 'Clear',\n" +
+                "        opens: 'left',\n" +
+                "        drops: 'auto',\n" +
                 "        locale: {\n" +
                 "           format: 'DD.MM.YYYY HH:mm'\n" +
                 "        }\n" +
@@ -262,11 +275,10 @@ public class AddTourForm extends FormLayout {
                 "        const pattern = \"DD.MM.YYYY HH:mm\";\n" +
                 "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
                 "    });\n" +
-                "});", dtf.print(start), dtf.print(end));
-        log.debug("JS SCRIPT BEFORE EXECUTE: "+script);
+                "});", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
         // executing JS should be avoided in constructor
         getElement().executeJs(script);
-
+        log.debug("Executed JS: "+script);
     }
 
     //region getters/setters
@@ -280,7 +292,6 @@ public class AddTourForm extends FormLayout {
     //endregion
 
     static class String2IntervalConverter implements Converter<String, Interval> {
-
 
         @Override
         public Result<Interval> convertToModel(String value, ValueContext context) {
@@ -299,11 +310,11 @@ public class AddTourForm extends FormLayout {
                 end = value.getEnd();
                 // fix error when press on add tour button.
             } catch (NullPointerException e) {
-                log.debug("Interval id null get current date without time.");
-                start = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
-                end = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
+                // ignored, return current date with zero time by default.
             }
-            return String.format("%s-%s", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
+            var result = String.format("%s-%s", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
+            log.debug("Date-time range to return: "+result);
+            return result;
         }
     }
 
