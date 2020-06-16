@@ -43,15 +43,13 @@ import org.vaadin.gatanaso.MultiselectComboBox;
 public class AddTourForm extends FormLayout {
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
 
-    public static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm";
+    public static final String DATE_TIME_PATTERN = "dd.MMM.yyyy HH:mm";
     public static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
     private static DateTime start, end;
 
     static {
         start = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
         end = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
-
-        System.out.println("PRINT DATE = "+dtf.print(start));
     }
 
     private Tour tour;
@@ -88,7 +86,7 @@ public class AddTourForm extends FormLayout {
     /**
      * Required to call init method after create an instance.
      * fixme: bad solution. Init methods shall not be executed manually. Code is not reusable!
-     * */
+     */
     public AddTourForm(GuideService guideService, DriverService driverService, TourService tourService) {
         this.guideService = guideService;
         this.driverService = driverService;
@@ -98,6 +96,7 @@ public class AddTourForm extends FormLayout {
         configButtons();
         configFields();
         configComboBoxes();
+        configBinder(tour);
 
         add(mainLayout);
         setWidth("600px");
@@ -112,8 +111,9 @@ public class AddTourForm extends FormLayout {
         else
             deleteButton.setVisible(true);
 
+        setTour(tour);
+
         configHeader(title);
-        configBinder(tour);
         setVisible(true);
     }
 
@@ -224,16 +224,16 @@ public class AddTourForm extends FormLayout {
                 "        opens: 'left',\n" +
                 "        drops: 'auto',\n" +
                 "        locale: {\n" +
-                "           format: 'DD.MM.YYYY HH:mm'\n" +
+                "           format: 'DD.MMM.YYYY HH:mm'\n" +
                 "        }\n" +
                 "    }, function (start, end, label) {\n" +
-                "        const pattern = \"DD.MM.YYYY HH:mm\";\n" +
+                "        const pattern = \"DD.MMM.YYYY HH:mm\";\n" +
                 "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
                 "    });\n" +
                 "});", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
         // executing JS should be avoided in constructor
         getElement().executeJs(script);
-        log.debug("Executed JS: "+script);
+        //log.debug("Executed JS: "+script);
     }
 
     //region getters/setters
@@ -243,6 +243,7 @@ public class AddTourForm extends FormLayout {
 
     public void setTour(Tour tour) {
         this.tour = tour;
+        binder.readBean(tour);
     }
     //endregion
 
@@ -257,7 +258,7 @@ public class AddTourForm extends FormLayout {
                 var interval = new Interval(from, to);
                 // TODO: 12.06.2020 test Interval.parse method
                 return Result.ok(interval);
-            }catch (NullPointerException e){
+            } catch (NullPointerException e) {
                 return Result.ok(null);
             }
         }
@@ -273,7 +274,7 @@ public class AddTourForm extends FormLayout {
                 return "";
             }
             var result = String.format("%s-%s", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
-            log.debug("Date-time range to return: "+result);
+            log.debug("Date-time range to return: " + result);
             return result;
         }
     }
