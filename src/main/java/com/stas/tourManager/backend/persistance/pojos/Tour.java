@@ -75,7 +75,7 @@ public class Tour extends AbstractEntity {
                 "title='" + title + '\'' +
                 ", id='" + id + '\'' +
                 ", description='" + description + '\'' +
-                ", date=" + date.toString() +
+                ", date=" + date +
                 ", guides=" + guides.toString() +
                 ", drivers=" + drivers.toString() +
                 ", file='" + file + '\'' +

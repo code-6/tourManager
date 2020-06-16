@@ -22,10 +22,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.Result;
-import com.vaadin.flow.data.binder.ValueContext;
+import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.converter.Converter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -96,7 +93,7 @@ public class AddTourForm extends FormLayout {
         configButtons();
         configFields();
         configComboBoxes();
-        configBinder(tour);
+        configBinder();
 
         add(mainLayout);
         setWidth("600px");
@@ -110,6 +107,8 @@ public class AddTourForm extends FormLayout {
             deleteButton.setVisible(false);
         else
             deleteButton.setVisible(true);
+
+        binder.setBean(tour);
 
         setTour(tour);
 
@@ -137,17 +136,24 @@ public class AddTourForm extends FormLayout {
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         saveButton.addClickListener(e -> {
-            save();
-            ListToursView.updateTable();
-            setVisible(false);
-            Notification.show("Changes saved", 2000, Notification.Position.TOP_END);
+            if(binder.isValid()){
+                save();
+                ListToursView.updateTable();
+                setVisible(false);
+                Notification.show("Changes saved", 2000, Notification.Position.TOP_END);
+            }else{
+                Notification.show("Fill required fields", 2000, Notification.Position.TOP_END);
+            }
         });
 
         deleteButton.addClickShortcut(Key.DELETE);
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.addClickListener(event -> {
             new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
+                tourService.delete(binder.getBean());
+                ListToursView.updateTable();
                 Notification.show("Deleted !", 2000, Notification.Position.TOP_END);
+
             }).open();
             setVisible(false);
         });
@@ -178,6 +184,7 @@ public class AddTourForm extends FormLayout {
 
         date.setId("daterange");
         date.setSizeFull();
+        date.setReadOnly(true);
     }
 
     private void configComboBoxes() {
@@ -197,15 +204,13 @@ public class AddTourForm extends FormLayout {
         drivers.setSizeFull();
     }
 
-    private void configBinder(Tour tour) {
+    private void configBinder() {
         binder.forField(date)
                 .withNullRepresentation("")
                 .withConverter(new String2IntervalConverter())
                 .bind(Tour::getDate, Tour::setDate);
 
         binder.bindInstanceFields(this);
-
-        binder.setBean(tour);
     }
 
     @Override
@@ -224,12 +229,16 @@ public class AddTourForm extends FormLayout {
                 "        opens: 'left',\n" +
                 "        drops: 'auto',\n" +
                 "        locale: {\n" +
-                "           format: 'DD.MMM.YYYY HH:mm'\n" +
+                "           format: 'DD.MMM.YYYY HH:mm',\n" +
+                "           cancelLabel: 'Clear'\n" +
                 "        }\n" +
                 "    }, function (start, end, label) {\n" +
                 "        const pattern = \"DD.MMM.YYYY HH:mm\";\n" +
                 "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
                 "    });\n" +
+                "$('#daterange').on('cancel.daterangepicker', function(ev, picker) {\n" +
+                "      $(this).val('');\n" +
+                "  });" +
                 "});", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
         // executing JS should be avoided in constructor
         getElement().executeJs(script);
@@ -243,7 +252,7 @@ public class AddTourForm extends FormLayout {
 
     public void setTour(Tour tour) {
         this.tour = tour;
-        binder.readBean(tour);
+        //binder.readBean(tour);
     }
     //endregion
 
