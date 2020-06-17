@@ -2,18 +2,11 @@ package com.stas.tourManager.frontend.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
-import com.stas.tourManager.backend.persistance.pojos.Tour;
-import com.stas.tourManager.backend.persistance.services.DriverService;
-import com.stas.tourManager.backend.persistance.services.GuideService;
-import com.stas.tourManager.backend.persistance.services.TourService;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.JavaScript;
-import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -23,40 +16,29 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
-import com.vaadin.flow.data.binder.*;
+import com.vaadin.flow.data.binder.Result;
+import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
+import java.util.List;
 import java.util.Locale;
 
-// FIXME: 15.06.2020 refactor code! Add responsive.
-@StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
-@JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
-@JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
-@JavaScript("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
+import static com.stas.tourManager.frontend.views.ListToursView.*;
+
 public class AddTourForm extends FormLayout {
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
-
-    public static final String DATE_TIME_PATTERN = "dd.MMM.yyyy HH:mm";
-    public static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN).withLocale(Locale.US);
+    // default current date and time for picker
     private static DateTime start, end;
 
     static {
         start = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
         end = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
     }
-
-    private Tour tour;
-
-    private GuideService guideService;
-    private DriverService driverService;
-    private TourService tourService;
 
     private Label headerLabel = new Label();
 
@@ -77,98 +59,25 @@ public class AddTourForm extends FormLayout {
     protected HorizontalLayout fieldsLayout2 = new HorizontalLayout(guides, drivers);
     protected HorizontalLayout fieldsLayout3 = new HorizontalLayout(description, file);
     protected HorizontalLayout buttonsLayout = new HorizontalLayout(saveButton, cancelButton, deleteButton);
-
     protected VerticalLayout mainLayout = new VerticalLayout(header, fieldsLayout1, fieldsLayout2,
             fieldsLayout3, buttonsLayout);
 
-    private Binder<Tour> binder = new BeanValidationBinder<>(Tour.class);
+    public AddTourForm(List<Guide> guidesList, List<Driver> driversList) {
 
-    /**
-     * Required to call init method after create an instance.
-     * fixme: bad solution. Init methods shall not be executed manually. Code is not reusable!
-     */
-    public AddTourForm(GuideService guideService, DriverService driverService, TourService tourService) {
-        this.guideService = guideService;
-        this.driverService = driverService;
-        this.tourService = tourService;
-
-        configLayouts();
-        configButtons();
+        configHeader();
         configFields();
-        configComboBoxes();
-        configBinder();
+        configComboBoxes(guidesList, driversList);
+        configButtons();
+        configLayouts();
 
         add(mainLayout);
-
-        setWidth("600px");
-        setMinWidth("600px");
-        setVisible(false);
     }
 
-    public void init(boolean withDelete, String title, Tour tour) {
-
-        if (!withDelete)
-            deleteButton.setVisible(false);
-        else
-            deleteButton.setVisible(true);
-        binder.removeBean();
-        setTour(tour);
-        binder.setBean(tour);
-
-        configHeader(title);
-        setVisible(true);
-    }
-
-    public void configHeader(String title) {
-        headerLabel.setText(title);
+    public void configHeader() {
+        // todo: make dynamic
+        headerLabel.setText("Create new tour");
         header.setFlexGrow(1, this.title);
         header.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    private void configLayouts() {
-        fieldsLayout1.setSizeFull();
-        fieldsLayout2.setSizeFull();
-        fieldsLayout3.setSizeFull();
-
-        mainLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-    }
-
-    private void configButtons() {
-        cancelButton.addClickListener(e -> {setVisible(false);});
-
-        saveButton.addClickShortcut(Key.ENTER);
-        saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        saveButton.addClickListener(e -> {
-            if (binder.isValid()) {
-                save();
-                ListToursView.updateTable();
-                setVisible(false);
-                Notification.show("Changes saved", 2000, Notification.Position.TOP_END);
-            } else {
-                Notification.show("Fill required fields", 2000, Notification.Position.TOP_END);
-            }
-        });
-
-        deleteButton.addClickShortcut(Key.DELETE);
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        deleteButton.addClickListener(event -> {
-            new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
-                tourService.delete(binder.getBean());
-                ListToursView.updateTable();
-                Notification.show("Deleted !", 2000, Notification.Position.TOP_END);
-
-            }).open();
-            setVisible(false);
-        });
-    }
-
-    private void save() {
-        if (binder.isValid()) {
-            Tour tour = binder.getBean();
-            tourService.saveOrUpdate(tour);
-        } else {
-            log.error("Unable to create tour! ");
-        }
     }
 
     private void configFields() {
@@ -180,7 +89,6 @@ public class AddTourForm extends FormLayout {
 
         file.addSucceededListener(event -> {
             System.out.println("FILE NAME: " + event.getFileName());
-            binder.getBean().setFile(event.getFileName());
         });
 //        upload.setSizeFull();
         file.setWidth("87%");
@@ -190,8 +98,8 @@ public class AddTourForm extends FormLayout {
         date.setReadOnly(true);
     }
 
-    private void configComboBoxes() {
-        guides.setItems(guideService.getGuides());
+    private void configComboBoxes(List<Guide> guidesList, List<Driver> driversList) {
+        guides.setItems(guidesList);
         guides.setItemLabelGenerator(Guide::getFullName);
         guides.setClearButtonVisible(true);
         //guides.setCompactMode(true);
@@ -199,7 +107,7 @@ public class AddTourForm extends FormLayout {
         guides.setLabel("Appoint guides");
         guides.setSizeFull();
 
-        drivers.setItems(driverService.getDrivers());
+        drivers.setItems(driversList);
         drivers.setItemLabelGenerator(Driver::getFullName);
         drivers.setClearButtonVisible(true);
         drivers.setPlaceholder("Choose drivers");
@@ -207,57 +115,36 @@ public class AddTourForm extends FormLayout {
         drivers.setSizeFull();
     }
 
-    private void configBinder() {
-        binder.forField(date)
-                .withNullRepresentation("")
-                .withConverter(new String2IntervalConverter())
-                .bind(Tour::getDate, Tour::setDate);
+    private void configButtons() {
+        cancelButton.addClickListener(e -> {
+            Notification.show("Cancel pressed", 2000, Notification.Position.TOP_END);
+        });
 
-        binder.bindInstanceFields(this);
+        saveButton.addClickShortcut(Key.ENTER);
+        saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        saveButton.addClickListener(e -> {
+
+            Notification.show("Save pressed", 2000, Notification.Position.TOP_END);
+
+        });
+
+        deleteButton.addClickShortcut(Key.DELETE);
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        deleteButton.addClickListener(event -> {
+            new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
+                Notification.show("Delete confirmed", 2000, Notification.Position.TOP_END);
+
+            }).open();
+        });
     }
 
-    @Override
-    protected void onAttach(AttachEvent event) {
-        super.onAttach(event);
-        // FIXME: 13.06.2020 possibly no need to use format in value setting because used locale in js script
-        var script = String.format("$(function () {\n" +
-                "    $('#daterange').daterangepicker({\n" +
-                "        timePicker: true,\n" +
-                "        timePicker24Hour: true,\n" +
-                "        timePickerIncrement: 5,\n" +
-                "        autoApply: true,\n" +
-                "        startDate: '%s',\n" +
-                "        endDate: '%s',\n" +
-                "        cancelLabel: 'Clear',\n" +
-                "        opens: 'left',\n" +
-                "        drops: 'auto',\n" +
-                "        locale: {\n" +
-                "           format: 'DD.MMM.YYYY HH:mm',\n" +
-                "           cancelLabel: 'Clear'\n" +
-                "        }\n" +
-                "    }, function (start, end, label) {\n" +
-                "        const pattern = \"DD.MMM.YYYY HH:mm\";\n" +
-                "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
-                "    });\n" +
-                "$('#daterange').on('cancel.daterangepicker', function(ev, picker) {\n" +
-                "      $(this).val('');\n" +
-                "  });" +
-                "});", start.toString(DATE_TIME_PATTERN, Locale.US), end.toString(DATE_TIME_PATTERN, Locale.US));
-        // executing JS should be avoided in constructor
-        getElement().executeJs(script);
-        log.debug("Executed JS: " + script);
-    }
+    private void configLayouts() {
+        fieldsLayout1.setSizeFull();
+        fieldsLayout2.setSizeFull();
+        fieldsLayout3.setSizeFull();
 
-    //region getters/setters
-    public Tour getTour() {
-        return tour;
+        mainLayout.setAlignItems(FlexComponent.Alignment.CENTER);
     }
-
-    public void setTour(Tour tour) {
-        this.tour = tour;
-        //binder.readBean(tour);
-    }
-    //endregion
 
     static class String2IntervalConverter implements Converter<String, Interval> {
 
@@ -265,8 +152,8 @@ public class AddTourForm extends FormLayout {
         public Result<Interval> convertToModel(String value, ValueContext context) {
             try {
                 var arr = value.split("-");
-                var from = DateTime.parse(arr[0], dtf);
-                var to = DateTime.parse(arr[1], dtf);
+                var from = DateTime.parse(arr[0], DATE_TIME_FORMATTER);
+                var to = DateTime.parse(arr[1], DATE_TIME_FORMATTER);
                 var interval = new Interval(from, to);
                 // TODO: 12.06.2020 test Interval.parse method
                 return Result.ok(interval);
@@ -285,11 +172,10 @@ public class AddTourForm extends FormLayout {
                 // ignored, return current date with zero time by default.
                 return "";
             }
-            var result = String.format("%s-%s", start.toString(DATE_TIME_PATTERN, Locale.US), end.toString(DATE_TIME_PATTERN, Locale.US));
-            log.debug("Date-time range to return: " + result);
+            var result = String.format("%s-%s", start.toString(DATE_TIME_FORMAT, Locale.US),
+                    end.toString(DATE_TIME_FORMAT, Locale.US));
+            System.out.println("convert from interval to string result: " + result);
             return result;
         }
     }
-
-
 }
