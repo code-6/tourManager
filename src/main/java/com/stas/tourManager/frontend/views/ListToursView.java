@@ -22,7 +22,11 @@ import java.util.Locale;
 public class ListToursView extends HorizontalLayout {
     private static final Logger log = LoggerFactory.getLogger(ListToursView.class);
     public static final String DATE_TIME_FORMAT = "dd.MMM.yyyy HH:mm";
-    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern(DATE_TIME_FORMAT);
+    public static final DateTimeFormatter DATE_TIME_FORMATTER;
+
+    static {
+        DATE_TIME_FORMATTER = DateTimeFormat.forPattern(DATE_TIME_FORMAT).withLocale(Locale.US);
+    }
 
     private TourService tourService;
     private GuideService guideService;

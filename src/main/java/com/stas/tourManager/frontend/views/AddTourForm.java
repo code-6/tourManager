@@ -2,11 +2,13 @@ package com.stas.tourManager.frontend.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.JavaScript;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -28,8 +30,13 @@ import org.vaadin.gatanaso.MultiselectComboBox;
 import java.util.List;
 import java.util.Locale;
 
-import static com.stas.tourManager.frontend.views.ListToursView.*;
+import static com.stas.tourManager.frontend.views.ListToursView.DATE_TIME_FORMAT;
+import static com.stas.tourManager.frontend.views.ListToursView.DATE_TIME_FORMATTER;
 
+@StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
+@JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+@JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
+@JavaScript("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
 public class AddTourForm extends FormLayout {
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
     // default current date and time for picker
@@ -39,11 +46,12 @@ public class AddTourForm extends FormLayout {
         start = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
         end = DateTime.now().withHourOfDay(0).withMinuteOfHour(0);
     }
-
+    // text label for identify current action, create or edit.
     private Label headerLabel = new Label();
 
     private TextField title = new TextField();
     private TextArea description = new TextArea();
+    // text field for date-picker
     private TextField date = new TextField("Date-time");
     private MultiselectComboBox<Guide> guides = new MultiselectComboBox<>();
     private MultiselectComboBox<Driver> drivers = new MultiselectComboBox<>();
@@ -146,6 +154,39 @@ public class AddTourForm extends FormLayout {
         mainLayout.setAlignItems(FlexComponent.Alignment.CENTER);
     }
 
+    @Override
+    protected void onAttach(AttachEvent event) {
+        super.onAttach(event);
+        // FIXME: 13.06.2020 possibly no need to use format in value setting because used locale in js script
+        var script = String.format("$(function () {\n" +
+                "    $('#daterange').daterangepicker({\n" +
+                "        timePicker: true,\n" +
+                "        timePicker24Hour: true,\n" +
+                "        timePickerIncrement: 5,\n" +
+                "        autoApply: true,\n" +
+                "        startDate: '%s',\n" +
+                "        endDate: '%s',\n" +
+                "        cancelLabel: 'Clear',\n" +
+                "        opens: 'left',\n" +
+                "        drops: 'auto',\n" +
+                "        locale: {\n" +
+                "           format: 'DD.MMM.YYYY HH:mm',\n" +
+                "           cancelLabel: 'Clear'\n" +
+                "        }\n" +
+                "    }, function (start, end, label) {\n" +
+                "        const pattern = \"DD.MMM.YYYY HH:mm\";\n" +
+                "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
+                "    });\n" +
+                "$('#daterange').on('cancel.daterangepicker', function(ev, picker) {\n" +
+                "      $(this).val('');\n" +
+                "  });" +
+                "});", start.toString(DATE_TIME_FORMAT, Locale.US), end.toString(DATE_TIME_FORMAT, Locale.US));
+        // executing JS should be avoided in constructor
+        getElement().executeJs(script);
+        System.out.println("Executed JS: " + script);
+    }
+
+    //region interval converter
     static class String2IntervalConverter implements Converter<String, Interval> {
 
         @Override
@@ -178,4 +219,5 @@ public class AddTourForm extends FormLayout {
             return result;
         }
     }
+    //endregion
 }
