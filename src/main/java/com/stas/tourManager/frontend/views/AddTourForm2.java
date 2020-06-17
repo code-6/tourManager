@@ -20,11 +20,11 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.*;
+import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.shared.Registration;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.util.List;
+import java.util.Locale;
 
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
 @JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
@@ -83,11 +84,20 @@ public class AddTourForm2 extends FormLayout {
     }
 
     public AddTourForm2(List<Driver> driversList, List<Guide> guidesList) {
+        binder.forField(date)
+                .withNullRepresentation("")
+                .withConverter(new AddTourForm2.String2IntervalConverter())
+                .bind(Tour::getDate, Tour::setDate);
+
         binder.bindInstanceFields(this);
-    }
 
-    public void initFormForCreateAction(){
+        configLayouts();
+        configButtons();
+        configFields();
+        configComboBoxes(driversList, guidesList);
 
+        setWidth("600px");
+        setMinWidth("600px");
     }
 
     private void configComboBoxes(List<Driver> driversList, List<Guide> guidesList) {
@@ -212,5 +222,37 @@ public class AddTourForm2 extends FormLayout {
     public <T extends ComponentEvent<?>> Registration addListener(Class<T> eventType,
                                                                   ComponentEventListener<T> listener) {
         return getEventBus().addListener(eventType, listener);
+    }
+
+    static class String2IntervalConverter implements Converter<String, Interval> {
+
+        @Override
+        public Result<Interval> convertToModel(String value, ValueContext context) {
+            try {
+                var arr = value.split("-");
+                var from = DateTime.parse(arr[0], dtf);
+                var to = DateTime.parse(arr[1], dtf);
+                var interval = new Interval(from, to);
+                // TODO: 12.06.2020 test Interval.parse method
+                return Result.ok(interval);
+            } catch (NullPointerException e) {
+                return Result.ok(null);
+            }
+        }
+
+        @Override
+        public String convertToPresentation(Interval value, ValueContext context) {
+            try {
+                start = value.getStart();
+                end = value.getEnd();
+                // fix error when press on add tour button.
+            } catch (NullPointerException e) {
+                // ignored, return current date with zero time by default.
+                return "";
+            }
+            var result = String.format("%s-%s", start.toString(DATE_TIME_PATTERN, Locale.US), end.toString(DATE_TIME_PATTERN, Locale.US));
+            log.debug("Date-time range to return: " + result);
+            return result;
+        }
     }
 }

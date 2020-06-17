@@ -14,6 +14,8 @@ import com.vaadin.flow.router.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+
 @Route(value = "tours", layout = MainLayout.class)
 public class ListToursView extends HorizontalLayout {
     private final Logger log = LoggerFactory.getLogger(ListToursView.class);
@@ -36,6 +38,7 @@ public class ListToursView extends HorizontalLayout {
         this.driverService = driverService;
 
         form = new AddTourForm(guideService, driverService, tourService);
+        form.setVisible(false);
 
         init();
     }
@@ -53,28 +56,25 @@ public class ListToursView extends HorizontalLayout {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        try{
-            grid.removeColumns(grid.getColumnByKey("title"),
-                    grid.getColumnByKey("from"),
-                    grid.getColumnByKey("to"),
-                    grid.getColumnByKey("description"),
-                    grid.getColumnByKey("guides"),
-                    grid.getColumnByKey("drivers"),
-                    grid.getColumnByKey("file"),
-                    grid.getColumnByKey("date"));
 
-        }catch (NullPointerException e){
-            // fix java.lang.NullPointerException: column should not be null
-        }
+        grid.removeColumns(grid.getColumnByKey("title"),
+                grid.getColumnByKey("from"),
+                grid.getColumnByKey("to"),
+                grid.getColumnByKey("description"),
+                grid.getColumnByKey("guides"),
+                grid.getColumnByKey("drivers"),
+                grid.getColumnByKey("file"),
+                grid.getColumnByKey("date"));
+
 
         grid.addColumn("title").setHeader("Title").setSortable(true);
         // LocalDateTimeRenderer for date and time
         grid.addColumn(new DateTimeRenderer<>(Tour::getFrom,
-                AddTourForm.dtf))
+                AddTourForm.dtf.withLocale(Locale.US)))
                 .setHeader("From").setSortable(true);
 
         grid.addColumn(new DateTimeRenderer<>(Tour::getTo,
-                AddTourForm.dtf))
+                AddTourForm.dtf.withLocale(Locale.US)))
                 .setHeader("To").setSortable(true);
 
         grid.addColumn("description").setHeader("Description");
@@ -82,11 +82,12 @@ public class ListToursView extends HorizontalLayout {
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
         // truncate description column
         grid.getColumnByKey("description").setAutoWidth(false).setWidth("200px");
+
         grid.setItems(toursList);
 
-        initButtons();
 
         add(grid);
+        initButtons();
         add(form);
     }
 
@@ -115,5 +116,9 @@ public class ListToursView extends HorizontalLayout {
             });
             return editButton;
         }).setHeader(createButton);
+    }
+
+    public void editTour(Tour tour) {
+        form.setTour(tour);
     }
 }

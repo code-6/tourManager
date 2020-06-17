@@ -5,7 +5,9 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.server.PWA;
 
+@PWA(name = "Picasso", iconPath = "img/icons/android-chrome-192x192.png", shortName = "PCS")
 public class MainLayout extends AppLayout {
     public MainLayout() {
         initHeader();
@@ -28,5 +30,6 @@ public class MainLayout extends AppLayout {
         addToNavbar(tabs);
 
     }
+
 }
 

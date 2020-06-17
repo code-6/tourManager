@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class TourService {
@@ -61,7 +62,8 @@ public class TourService {
             var tour = new Tour();
             tour.setTitle(faker.book().title());
             tour.setDescription(faker.yoda().quote());
-            tour.setDate(new Interval(LocalDateTime.now().minusDays(10).toDateTime(), LocalDateTime.now().toDateTime()));
+            tour.setDate(new Interval(LocalDateTime.now().minusDays(ThreadLocalRandom.current().nextInt(1, 15)).toDateTime(),
+                    LocalDateTime.now().plusDays(ThreadLocalRandom.current().nextInt(1, 15)).toDateTime()));
             tour.addDriver(DriverService.getRandomDriver());
             tour.addGuide(GuideService.getRandomGuide());
             tour.setFile(faker.file().fileName());

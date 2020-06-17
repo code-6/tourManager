@@ -7,6 +7,7 @@ import com.stas.tourManager.backend.persistance.services.DriverService;
 import com.stas.tourManager.backend.persistance.services.GuideService;
 import com.stas.tourManager.backend.persistance.services.TourService;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -32,6 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
+import java.util.Locale;
+
 // FIXME: 15.06.2020 refactor code! Add responsive.
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
 @JavaScript("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
@@ -41,7 +44,7 @@ public class AddTourForm extends FormLayout {
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
 
     public static final String DATE_TIME_PATTERN = "dd.MMM.yyyy HH:mm";
-    public static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN);
+    public static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_TIME_PATTERN).withLocale(Locale.US);
     private static DateTime start, end;
 
     static {
@@ -96,6 +99,7 @@ public class AddTourForm extends FormLayout {
         configBinder();
 
         add(mainLayout);
+
         setWidth("600px");
         setMinWidth("600px");
         setVisible(false);
@@ -107,10 +111,9 @@ public class AddTourForm extends FormLayout {
             deleteButton.setVisible(false);
         else
             deleteButton.setVisible(true);
-
-        binder.setBean(tour);
-
+        binder.removeBean();
         setTour(tour);
+        binder.setBean(tour);
 
         configHeader(title);
         setVisible(true);
@@ -131,17 +134,17 @@ public class AddTourForm extends FormLayout {
     }
 
     private void configButtons() {
-        cancelButton.addClickListener(e -> setVisible(false));
+        cancelButton.addClickListener(e -> {setVisible(false);});
 
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         saveButton.addClickListener(e -> {
-            if(binder.isValid()){
+            if (binder.isValid()) {
                 save();
                 ListToursView.updateTable();
                 setVisible(false);
                 Notification.show("Changes saved", 2000, Notification.Position.TOP_END);
-            }else{
+            } else {
                 Notification.show("Fill required fields", 2000, Notification.Position.TOP_END);
             }
         });
@@ -239,10 +242,10 @@ public class AddTourForm extends FormLayout {
                 "$('#daterange').on('cancel.daterangepicker', function(ev, picker) {\n" +
                 "      $(this).val('');\n" +
                 "  });" +
-                "});", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
+                "});", start.toString(DATE_TIME_PATTERN, Locale.US), end.toString(DATE_TIME_PATTERN, Locale.US));
         // executing JS should be avoided in constructor
         getElement().executeJs(script);
-        log.debug("Executed JS: "+script);
+        log.debug("Executed JS: " + script);
     }
 
     //region getters/setters
@@ -282,7 +285,7 @@ public class AddTourForm extends FormLayout {
                 // ignored, return current date with zero time by default.
                 return "";
             }
-            var result = String.format("%s-%s", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
+            var result = String.format("%s-%s", start.toString(DATE_TIME_PATTERN, Locale.US), end.toString(DATE_TIME_PATTERN, Locale.US));
             log.debug("Date-time range to return: " + result);
             return result;
         }
