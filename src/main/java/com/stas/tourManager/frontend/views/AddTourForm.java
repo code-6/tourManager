@@ -242,7 +242,7 @@ public class AddTourForm extends FormLayout {
                 "});", start.toString(DATE_TIME_PATTERN), end.toString(DATE_TIME_PATTERN));
         // executing JS should be avoided in constructor
         getElement().executeJs(script);
-        //log.debug("Executed JS: "+script);
+        log.debug("Executed JS: "+script);
     }
 
     //region getters/setters
