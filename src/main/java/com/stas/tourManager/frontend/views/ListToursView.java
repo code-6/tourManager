@@ -38,7 +38,7 @@ public class ListToursView extends HorizontalLayout {
 
     private final Button createButton = new Button("add", VaadinIcon.PLUS.create());
 
-    private AddTourForm form;
+    private final AddTourForm form;
 
     public ListToursView(TourService tourService, GuideService guideService, DriverService driverService) {
         this.tourService = tourService;
@@ -48,6 +48,11 @@ public class ListToursView extends HorizontalLayout {
         tour = new Tour();
 
         form = new AddTourForm(guideService.getGuides(), driverService.getDrivers());
+        // hide add form
+        form.setVisible(false);
+        form.addListener(AddTourForm.SaveEvent.class, this::saveTour);
+        form.addListener(AddTourForm.DeleteEvent.class, this::deleteTour);
+        form.addListener(AddTourForm.CancelEvent.class, e -> closeAddForm());
 
         initButtons();
         initGrid();
@@ -59,14 +64,18 @@ public class ListToursView extends HorizontalLayout {
 
     private void initGrid() {
         var toursList = tourService.getAll();
+        grid.setItems(toursList);
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.setSizeFull();
-        // temporary hide columns
-        grid.getColumns().forEach(c -> c.setVisible(false));
+        grid.setColumns("id", "title", "from", "to", "description");
+//        // temporary hide columns
+//        grid.getColumns().forEach(c -> c.setVisible(false));
+        // set auto width to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
 
-        grid.getColumnByKey("id").setVisible(true);
-        grid.getColumnByKey("title").setVisible(true);
+        grid.getColumnByKey("id")
+                .setAutoWidth(false)
+                .setWidth("25px");
 
         grid.removeColumnByKey("from");
         // LocalDateTimeRenderer for date and time
@@ -80,13 +89,11 @@ public class ListToursView extends HorizontalLayout {
                 .setHeader("To").setSortable(true).setVisible(true);
 
         // truncate description column
+        // FIXME: 6/17/20 why this column at first position?
         grid.getColumnByKey("description")
                 .setSortable(false)
                 .setAutoWidth(false)
-                .setWidth("200px")
-                .setVisible(true);
-
-        grid.setItems(toursList);
+                .setWidth("200px");
 
         // add edit button to each row and create button as header of the column.
         grid.addComponentColumn(tour -> {
@@ -94,7 +101,8 @@ public class ListToursView extends HorizontalLayout {
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
             editButton.addClickListener(e -> {
                 log.debug("tour data before edit: " + tour.toString());
-                System.out.println("edit pressed");
+                // TODO: 6/17/20 change form header
+                editTour(tour);
             });
             return editButton;
         }).setHeader(createButton);
@@ -106,7 +114,46 @@ public class ListToursView extends HorizontalLayout {
         createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_SMALL);
 
         createButton.addClickListener(e -> {
-            System.out.println("add pressed");
+            // TODO: 6/17/20 hide delete button
+            addTour();
         });
+    }
+
+    private void deleteTour(AddTourForm.DeleteEvent evt) {
+        tourService.delete(evt.getTour());
+        updateGrid();
+        closeAddForm();
+    }
+
+    private void saveTour(AddTourForm.SaveEvent evt) {
+        tourService.saveOrUpdate(evt.getTour());
+        updateGrid();
+        closeAddForm();
+    }
+
+    private void addTour() {
+        editTour(new Tour());
+    }
+
+    private void editTour(Tour tour) {
+        if (tour == null) {
+            closeAddForm();
+        } else {
+            form.setTour(tour);
+            form.setVisible(true);
+        }
+    }
+
+    private void closeAddForm() {
+        form.setTour(null);
+        form.setVisible(false);
+    }
+
+    /**
+     * @implNote how this method will affect on load if there will be more than thousands rows?
+     * todo : make cacheble
+     */
+    private void updateGrid() {
+        grid.setItems(tourService.getAll());
     }
 }
