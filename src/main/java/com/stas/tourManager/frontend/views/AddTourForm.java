@@ -12,6 +12,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Locale;
 
@@ -82,7 +84,7 @@ public class AddTourForm extends FormLayout {
     private TextField title = new TextField();
     private TextArea description = new TextArea();
     // text field for date-picker
-    private TextField date = new TextField("Date-time");
+    private Input date = new Input();
     private MultiselectComboBox<Guide> guides = new MultiselectComboBox<>();
     private MultiselectComboBox<Driver> drivers = new MultiselectComboBox<>();
     private FileBuffer buffer = new FileBuffer();
@@ -116,7 +118,7 @@ public class AddTourForm extends FormLayout {
         configHeader();
         configFields();
         configComboBoxes(guidesList, driversList);
-        configButtons();
+        //configButtons();
         configLayouts();
 
         add(mainLayout);
@@ -165,7 +167,8 @@ public class AddTourForm extends FormLayout {
         drivers.setSizeFull();
     }
 
-    private void configButtons() {
+    @PostConstruct
+    public void configButtons() {
         cancelButton.addClickListener(e -> {
             fireEvent(new CancelEvent(this));
             Notification.show("Cancel pressed", 2000, Notification.Position.TOP_END);
@@ -174,6 +177,7 @@ public class AddTourForm extends FormLayout {
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         saveButton.addClickListener(e -> {
+            getElement().executeJs("return $('#daterange').val()").then(res-> System.out.println("RES: "+res.toJson()));
             if(validateAndSave())
                 Notification.show("Saved successfully", 2000, Notification.Position.TOP_END);
             else

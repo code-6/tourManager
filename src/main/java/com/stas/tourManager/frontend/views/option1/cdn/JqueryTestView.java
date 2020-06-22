@@ -5,11 +5,13 @@ import com.stas.tourManager.frontend.views.MainLayout;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Input;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Element;
@@ -17,6 +19,7 @@ import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.Route;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.ExecutionException;
 
 @Route(value = "test/cdn", layout = MainLayout.class)
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
@@ -27,15 +30,15 @@ import javax.annotation.PostConstruct;
 public class JqueryTestView extends VerticalLayout {
     private Button button = new Button("Open Modal");
     private H1 title = new H1("Test Page");
-    private TextField textField = new TextField("Date-time");
+    private Input textField = new Input();
 
     @PostConstruct
-    public void init(){
+    public void init() {
         textField.setPlaceholder("click here");
         textField.setMinWidth("285px");
         textField.setId("daterange");
 
-        button.addClickListener(click->{
+        button.addClickListener(click -> {
             var textFieldDialog = new TextField("Date-time");
             textFieldDialog.setPlaceholder("click here");
             textFieldDialog.setMinWidth("285px");
@@ -59,10 +62,21 @@ public class JqueryTestView extends VerticalLayout {
                     "        const pattern = \"DD.MM.YYYY HH:mm\";\n" +
                     "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
                     "    });\n" +
-                    "});");
+                    "});").then(event -> {
+                Notification.show("AFTER EXECUTE JS : " + event.asString(), 3000, Notification.Position.BOTTOM_END);
+            });
         });
+        var button2 = new Button("GetValue");
+        button2.addClickListener(click -> {
 
-        add(title, button, textField);
+            getElement().executeJs("return $('#daterange').val()").then(e -> {
+                System.out.println(e.toJson());
+                textField.setValue(e.toJson().replaceAll("\"", ""));
+            });
+
+            Notification.show("VALUE IN FIELD: " + textField.getValue(), 3000, Notification.Position.BOTTOM_START);
+        });
+        add(title, button, textField, button2);
     }
 
     protected void onAttach(AttachEvent event) {
@@ -80,7 +94,8 @@ public class JqueryTestView extends VerticalLayout {
                 "        const pattern = \"DD.MM.YYYY HH:mm\";\n" +
                 "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
                 "    });\n" +
-                "});").then(e-> {
+                "});").then(e -> {
+            Notification.show(" onAttach AFTER EXECUTE JS : " + e.asString(), 3000, Notification.Position.BOTTOM_END);
         });
     }
     //"$('#daterange').find( \"input\" ).val(start.format('YYYY-MM-DD')+ ' ' +end.format('YYYY-MM-DD'))"+
