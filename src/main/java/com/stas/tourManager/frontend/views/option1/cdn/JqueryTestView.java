@@ -72,9 +72,8 @@ public class JqueryTestView extends VerticalLayout {
             getElement().executeJs("return $('#daterange').val()").then(e -> {
                 System.out.println(e.toJson());
                 textField.setValue(e.toJson().replaceAll("\"", ""));
+                Notification.show("VALUE IN FIELD: " + textField.getValue(), 3000, Notification.Position.BOTTOM_START);
             });
-
-            Notification.show("VALUE IN FIELD: " + textField.getValue(), 3000, Notification.Position.BOTTOM_START);
         });
         add(title, button, textField, button2);
     }

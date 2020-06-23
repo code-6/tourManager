@@ -120,6 +120,8 @@ public class Tour extends AbstractEntity {
             from = date.getStart();
             to = date.getEnd();
         }catch (NullPointerException e){
+            from = null;
+            to = null;
             logger.warn("Set from and to failed because of empty date value");
         }
     }

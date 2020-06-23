@@ -289,12 +289,11 @@ public class AddTourForm extends FormLayout {
                 end = value.getEnd();
                 // fix error when press on add tour button.
             } catch (NullPointerException e) {
-                // ignored, return current date with zero time by default.
                 return "";
             }
             var result = String.format("%s-%s", start.toString(DATE_TIME_FORMAT, Locale.US),
                     end.toString(DATE_TIME_FORMAT, Locale.US));
-            System.out.println("convert from interval to string result: " + result);
+            log.debug("convert from interval to string result: " + result);
             return result;
         }
     }
