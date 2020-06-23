@@ -16,6 +16,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.Locale;
 
 @Route(value = "tours", layout = MainLayout.class)
@@ -81,11 +82,13 @@ public class ListToursView extends HorizontalLayout {
         // LocalDateTimeRenderer for date and time
         grid.addColumn(new DateTimeRenderer<>(Tour::getFrom,
                 DATE_TIME_FORMATTER.withLocale(Locale.US)))
+                .setComparator(Comparator.comparing(Tour::getFrom))
                 .setHeader("From").setSortable(true).setVisible(true);
 
         grid.removeColumnByKey("to");
         grid.addColumn(new DateTimeRenderer<>(Tour::getTo,
                 DATE_TIME_FORMATTER.withLocale(Locale.US)))
+                .setComparator(Comparator.comparing(Tour::getTo))
                 .setHeader("To").setSortable(true).setVisible(true);
 
         // truncate description column
