@@ -3,6 +3,7 @@ package com.stas.tourManager.frontend.views;
 import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
+import com.stas.tourManager.frontend.components.DateRangePickerField;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -81,7 +82,7 @@ public class AddTourForm extends FormLayout {
     private TextField title = new TextField();
     private TextArea description = new TextArea();
     // text field for date-picker
-    private TextField date = new TextField("Date-time range");
+    private DateRangePickerField date = new DateRangePickerField("Date-time range");
     private MultiselectComboBox<Guide> guides = new MultiselectComboBox<>();
     private MultiselectComboBox<Driver> drivers = new MultiselectComboBox<>();
     private FileBuffer buffer = new FileBuffer();
@@ -140,14 +141,15 @@ public class AddTourForm extends FormLayout {
         description.setSizeFull();
 
         file.addSucceededListener(event -> {
-            System.out.println("FILE NAME: " + event.getFileName());
+            log.debug("FILE NAME from event: " + event.getFileName());
+            log.debug("File name from buffer: " + buffer.getFileName());
         });
 //        upload.setSizeFull();
         file.setWidth("87%");
 
         date.setId("daterange");
         date.setSizeFull();
-        date.setReadOnly(true);
+        //date.setReadOnly(true);
     }
 
     private void configComboBoxes(List<Guide> guidesList, List<Driver> driversList) {
@@ -176,14 +178,14 @@ public class AddTourForm extends FormLayout {
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         saveButton.addClickListener(e -> {
-            UI.getCurrent().getPage().executeJs("return $('#daterange').val()").then(res -> {
-                date.setValue(res.toJson().replaceAll("\"", ""));
+//            UI.getCurrent().getPage().executeJs("return $('#daterange').val()").then(res -> {
+//                date.setValue(res.toJson().replaceAll("\"", ""));
 
-                if (validateAndSave())
-                    Notification.show("Saved successfully", 2000, Notification.Position.TOP_END);
-                else
-                    Notification.show("Save failed", 2000, Notification.Position.TOP_END);
-            });
+            if (validateAndSave())
+                Notification.show("Saved successfully", 2000, Notification.Position.TOP_END);
+            else
+                Notification.show("Save failed", 2000, Notification.Position.TOP_END);
+//            });
         });
 
         // enable or disable save button depends on validation status of binder
@@ -195,7 +197,7 @@ public class AddTourForm extends FormLayout {
             new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
                 var t = binder.getBean();
                 log.debug("tour before delete in binder : " + (t == null ? "null" : t.toString()));
-                log.debug("global tour before delete: "+tour);
+                log.debug("global tour before delete: " + tour);
                 fireEvent(new DeleteEvent(this, tour));
                 Notification.show("Deleted", 2000, Notification.Position.TOP_END);
             }).open();

@@ -16,7 +16,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 @Route(value = "tours", layout = MainLayout.class)
@@ -66,17 +68,16 @@ public class ListToursView extends HorizontalLayout {
     private void initGrid() {
         var toursList = tourService.getAll();
         grid.setItems(toursList);
-        grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.setSizeFull();
-        grid.setColumns("id", "title", "from", "to", "description");
-//        // temporary hide columns
-//        grid.getColumns().forEach(c -> c.setVisible(false));
+        grid.addThemeVariants(GridVariant.LUMO_COMPACT);
+        grid.setColumns("id", "title", "from", "to");
+
         // set auto width to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
 
         grid.getColumnByKey("id")
                 .setAutoWidth(false)
-                .setWidth("25px");
+                .setWidth("35px");
 
         grid.removeColumnByKey("from");
         // LocalDateTimeRenderer for date and time
@@ -91,12 +92,13 @@ public class ListToursView extends HorizontalLayout {
                 .setComparator(Comparator.comparing(Tour::getTo))
                 .setHeader("To").setSortable(true).setVisible(true);
 
-        // truncate description column
-        // FIXME: 6/17/20 why this column at first position?
-        grid.getColumnByKey("description")
-                .setSortable(false)
-                .setAutoWidth(false)
-                .setWidth("200px");
+//        // truncate description column
+//        // FIXME: 6/17/20 why this column at first position?
+//        grid.getColumnByKey("description")
+//                .setSortable(false)
+//                .setAutoWidth(false)
+//                .setWidth("200px");
+
 
         // add edit button to each row and create button as header of the column.
         grid.addComponentColumn(tour -> {
@@ -105,7 +107,7 @@ public class ListToursView extends HorizontalLayout {
             editButton.addClickListener(e -> {
                 log.debug("tour data before edit: " + tour.toString());
                 // TODO: 6/17/20 change form header
-                form.initPicker(tour.getFrom(), tour.getTo());
+                //form.initPicker(tour.getFrom(), tour.getTo());
                 editTour(tour);
             });
             return editButton;
@@ -119,7 +121,7 @@ public class ListToursView extends HorizontalLayout {
 
         createButton.addClickListener(e -> {
             // TODO: 6/17/20 hide delete button
-            form.initPicker(null, null);
+            //form.initPicker(null, null);
             addTour();
         });
     }
