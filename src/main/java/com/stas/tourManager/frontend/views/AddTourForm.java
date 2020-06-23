@@ -3,10 +3,7 @@ package com.stas.tourManager.frontend.views;
 import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JavaScript;
@@ -70,7 +67,7 @@ public class AddTourForm extends FormLayout {
             "});";
 
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
-    // default current date and time for picker
+    // default current date and time for picker. This need to reset end time in picker to 00:00
     private static DateTime start, end;
 
     static {
@@ -84,7 +81,7 @@ public class AddTourForm extends FormLayout {
     private TextField title = new TextField();
     private TextArea description = new TextArea();
     // text field for date-picker
-    private Input date = new Input();
+    private TextField date = new TextField("Date-time range");
     private MultiselectComboBox<Guide> guides = new MultiselectComboBox<>();
     private MultiselectComboBox<Driver> drivers = new MultiselectComboBox<>();
     private FileBuffer buffer = new FileBuffer();
@@ -118,8 +115,11 @@ public class AddTourForm extends FormLayout {
         configHeader();
         configFields();
         configComboBoxes(guidesList, driversList);
-        //configButtons();
+        configButtons();
         configLayouts();
+
+        setMinWidth("600px");
+        setWidth("600px");
 
         add(mainLayout);
     }
@@ -167,22 +167,23 @@ public class AddTourForm extends FormLayout {
         drivers.setSizeFull();
     }
 
-    @PostConstruct
     public void configButtons() {
         cancelButton.addClickListener(e -> {
             fireEvent(new CancelEvent(this));
-            Notification.show("Cancel pressed", 2000, Notification.Position.TOP_END);
+            //Notification.show("Canceled", 2000, Notification.Position.TOP_END);
         });
 
         saveButton.addClickShortcut(Key.ENTER);
         saveButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         saveButton.addClickListener(e -> {
-            getElement().executeJs("return $('#daterange').val()").then(res-> System.out.println("RES: "+res.toJson()));
-            if(validateAndSave())
-                Notification.show("Saved successfully", 2000, Notification.Position.TOP_END);
-            else
-                Notification.show("Save failed", 2000, Notification.Position.TOP_END);
+            UI.getCurrent().getPage().executeJs("return $('#daterange').val()").then(res -> {
+                date.setValue(res.toJson().replaceAll("\"", ""));
 
+                if (validateAndSave())
+                    Notification.show("Saved successfully", 2000, Notification.Position.TOP_END);
+                else
+                    Notification.show("Save failed", 2000, Notification.Position.TOP_END);
+            });
         });
 
         // enable or disable save button depends on validation status of binder
@@ -218,15 +219,35 @@ public class AddTourForm extends FormLayout {
         }
     }
 
-    @Override
-    protected void onAttach(AttachEvent event) {
-        super.onAttach(event);
-        // FIXME: 13.06.2020 possibly no need to use format in value setting because used locale in js script
-        var s = String.format(script, start.toString(DATE_TIME_FORMAT, Locale.US), end.toString(DATE_TIME_FORMAT, Locale.US));
-        // executing JS should be avoided in constructor
-        getElement().executeJs(s);
-        System.out.println("Executed JS: " + s);
+    // FIXME: 23.06.2020 for now everything is working as expected, but to much js execution and possibly excess calls and initialization
+    public void initPicker(DateTime startDate, DateTime endDate) {
+
+        if (startDate == null && endDate == null) {
+            var s = String.format(script, DateTime.now().withHourOfDay(0).withMinuteOfHour(0).toString(DATE_TIME_FORMAT, Locale.US),
+                    DateTime.now().withHourOfDay(0).withMinuteOfHour(0).toString(DATE_TIME_FORMAT, Locale.US));
+            UI.getCurrent().getPage().executeJs(s);
+            log.debug("Executed js zero time : "+s);
+            UI.getCurrent().getPage().executeJs("$('#daterange').val('')");
+
+        } else {
+            var s =String.format(script, startDate.toString(DATE_TIME_FORMAT, Locale.US),
+                    endDate.toString(DATE_TIME_FORMAT, Locale.US));
+            UI.getCurrent().getPage().executeJs(s);
+            log.debug("Executed js tour time : "+s);
+            UI.getCurrent().getPage()
+                    .executeJs("$('#daterange').val('"+startDate.toString(DATE_TIME_FORMAT, Locale.US)+"-"+endDate.toString(DATE_TIME_FORMAT, Locale.US)+"')");
+        }
     }
+    
+//    @Override
+//    protected void onAttach(AttachEvent event) {
+//        super.onAttach(event);
+//        // FIXME: 13.06.2020 possibly no need to use format in value setting because used locale in js script
+//        var s = String.format(script, start.toString(DATE_TIME_FORMAT, Locale.US), end.toString(DATE_TIME_FORMAT, Locale.US));
+//        // executing JS should be avoided in constructor
+//        getElement().executeJs(s);
+//        System.out.println("Executed JS: " + s);
+//    }
 
     public void setTour(Tour tour) {
         this.tour = tour;
@@ -234,14 +255,16 @@ public class AddTourForm extends FormLayout {
     }
 
     //region interval converter
+
     /**
      * Converts String into joda Interval and vice versa.
-     * */
+     */
     static class IntervalConverter implements Converter<String, Interval> {
         /**
          * Converts string value to interval
+         *
          * @param value string representation of interval, example: 02.Jun.2020 00:00-03.Jun.2020 00:00
-         * */
+         */
         @Override
         public Result<Interval> convertToModel(String value, ValueContext context) {
             try {
