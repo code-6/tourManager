@@ -193,7 +193,10 @@ public class AddTourForm extends FormLayout {
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.addClickListener(event -> {
             new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
-                fireEvent(new DeleteEvent(this, binder.getBean()));
+                var t = binder.getBean();
+                log.debug("tour before delete in binder : " + (t == null ? "null" : t.toString()));
+                log.debug("global tour before delete: "+tour);
+                fireEvent(new DeleteEvent(this, tour));
                 Notification.show("Deleted", 2000, Notification.Position.TOP_END);
             }).open();
         });
@@ -226,19 +229,19 @@ public class AddTourForm extends FormLayout {
             var s = String.format(script, DateTime.now().withHourOfDay(0).withMinuteOfHour(0).toString(DATE_TIME_FORMAT, Locale.US),
                     DateTime.now().withHourOfDay(0).withMinuteOfHour(0).toString(DATE_TIME_FORMAT, Locale.US));
             UI.getCurrent().getPage().executeJs(s);
-            log.debug("Executed js zero time : "+s);
+            log.debug("Executed js zero time : " + s);
             UI.getCurrent().getPage().executeJs("$('#daterange').val('')");
 
         } else {
-            var s =String.format(script, startDate.toString(DATE_TIME_FORMAT, Locale.US),
+            var s = String.format(script, startDate.toString(DATE_TIME_FORMAT, Locale.US),
                     endDate.toString(DATE_TIME_FORMAT, Locale.US));
             UI.getCurrent().getPage().executeJs(s);
-            log.debug("Executed js tour time : "+s);
+            log.debug("Executed js tour time : " + s);
             UI.getCurrent().getPage()
-                    .executeJs("$('#daterange').val('"+startDate.toString(DATE_TIME_FORMAT, Locale.US)+"-"+endDate.toString(DATE_TIME_FORMAT, Locale.US)+"')");
+                    .executeJs("$('#daterange').val('" + startDate.toString(DATE_TIME_FORMAT, Locale.US) + "-" + endDate.toString(DATE_TIME_FORMAT, Locale.US) + "')");
         }
     }
-    
+
 //    @Override
 //    protected void onAttach(AttachEvent event) {
 //        super.onAttach(event);
