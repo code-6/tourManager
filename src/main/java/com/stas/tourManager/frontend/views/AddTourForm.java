@@ -263,6 +263,25 @@ public class AddTourForm extends FormLayout {
         return date;
     }
 
+    /**
+     * use this to change view header and appear delete button
+     * @implNote call only after setTour(Tour tour)
+     * */
+    public void forEdit(){
+        date.init(tour.getFrom(), tour.getTo());
+        headerLabel.setText("Edit tour \""+tour.getTitle()+"\"");
+        deleteButton.setVisible(true);
+    }
+
+    /**
+     * use this to change view header and hide delete button
+     * */
+    public void forCreate(){
+        date.init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0),DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
+        deleteButton.setVisible(false);
+        headerLabel.setText("Create new tour");
+    }
+
     //region interval converter
 
     /**

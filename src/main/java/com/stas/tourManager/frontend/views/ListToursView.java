@@ -109,8 +109,10 @@ public class ListToursView extends HorizontalLayout {
                 log.debug("tour data before edit: " + tour.toString());
                 // TODO: 6/17/20 change form header
                 //form.initPicker(tour.getFrom(), tour.getTo());
-                form.getDate().init(tour.getFrom(), tour.getTo());
+                //form.getDate().init(tour.getFrom(), tour.getTo());
                 editTour(tour);
+                // shall be called after set tour to the form
+                form.forEdit();
             });
             return editButton;
         }).setHeader(createButton);
@@ -124,7 +126,8 @@ public class ListToursView extends HorizontalLayout {
         createButton.addClickListener(e -> {
             // TODO: 6/17/20 hide delete button
             //form.initPicker(null, null);
-            form.getDate().init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0),DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
+            //form.getDate().init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0),DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
+            form.forCreate();
             addTour();
         });
     }
