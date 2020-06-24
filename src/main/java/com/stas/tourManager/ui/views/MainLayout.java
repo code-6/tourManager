@@ -1,6 +1,6 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.ui.views;
 
-import com.stas.tourManager.frontend.views.option1.cdn.TestView;
+import com.stas.tourManager.ui.views.option1.cdn.TestView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;

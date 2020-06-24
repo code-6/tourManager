@@ -1,4 +1,4 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.ui.views;
 
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;

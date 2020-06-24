@@ -1,4 +1,4 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.ui.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Car;
 import com.stas.tourManager.backend.persistance.pojos.Driver;

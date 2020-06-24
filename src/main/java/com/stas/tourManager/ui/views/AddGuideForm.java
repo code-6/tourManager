@@ -1,18 +1,14 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.ui.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.LanguageService;
 import com.stas.tourManager.backend.persistance.services.GuideService;
-import com.stas.tourManager.util.RegexList;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.regex.Pattern;
 
 public class AddGuideForm extends AddParticipantForm {
     private ComboBox<String> language = new ComboBox<>();

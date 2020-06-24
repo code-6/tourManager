@@ -1,4 +1,4 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.ui.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Tour;
 import com.stas.tourManager.backend.persistance.services.DriverService;
@@ -11,14 +11,13 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 
 @Route(value = "tours", layout = MainLayout.class)
@@ -41,8 +40,6 @@ public class ListToursView extends HorizontalLayout {
 
     private final Button createButton = new Button("add", VaadinIcon.PLUS.create());
 
-    private final AddTourForm form;
-
     public ListToursView(TourService tourService, GuideService guideService, DriverService driverService) {
         this.tourService = tourService;
         this.guideService = guideService;
@@ -50,19 +47,12 @@ public class ListToursView extends HorizontalLayout {
 
         tour = new Tour();
 
-        form = new AddTourForm(guideService.getGuides(), driverService.getDrivers());
-        // hide add form
-        form.setVisible(false);
-        form.addListener(AddTourForm.SaveEvent.class, this::saveTour);
-        form.addListener(AddTourForm.DeleteEvent.class, this::deleteTour);
-        form.addListener(AddTourForm.CancelEvent.class, e -> closeAddForm());
-
         initButtons();
         initGrid();
 
         setSizeFull();
 
-        add(form);
+        //add(form);
     }
 
     private void initGrid() {
@@ -107,8 +97,9 @@ public class ListToursView extends HorizontalLayout {
             editButton.addClickListener(e -> {
                 log.debug("tour data before edit: " + tour.toString());
                 // TODO: 6/17/20 change form header
-                //form.initPicker(tour.getFrom(), tour.getTo());
-                editTour(tour);
+                //form.getDate().initPicker(tour.getFrom(), tour.getTo());
+
+                    add(getAddTourFormForEdit(tour));
             });
             return editButton;
         }).setHeader(createButton);
@@ -121,10 +112,12 @@ public class ListToursView extends HorizontalLayout {
 
         createButton.addClickListener(e -> {
             // TODO: 6/17/20 hide delete button
-            //form.initPicker(null, null);
-            addTour();
+            //form.getDate().initPicker(null, null);
+
+                add(getAddTourFormForCreate());
         });
     }
+
 
     private void deleteTour(AddTourForm.DeleteEvent evt) {
         tourService.delete(evt.getTour());
@@ -138,22 +131,40 @@ public class ListToursView extends HorizontalLayout {
         closeAddForm();
     }
 
-    private void addTour() {
-        editTour(new Tour());
+    private AddTourForm getAddTourFormForCreate() {
+        var form = new AddTourForm(guideService.getGuides(), driverService.getDrivers());
+        form.setId("addFormCreate");
+        form.setTour(new Tour());
+        form.getDeleteButton().setVisible(false);
+        form.addListener(AddTourForm.SaveEvent.class, this::saveTour);
+        form.addListener(AddTourForm.DeleteEvent.class, this::deleteTour);
+        form.addListener(AddTourForm.CancelEvent.class, e -> closeAddForm());
+
+        return form;
     }
 
-    private void editTour(Tour tour) {
-        if (tour == null) {
-            closeAddForm();
-        } else {
-            form.setTour(tour);
-            form.setVisible(true);
-        }
+    private AddTourForm getAddTourFormForEdit(Tour tour) {
+        var form = new AddTourForm(guideService.getGuides(), driverService.getDrivers());
+        form.setId("addFormEdit");
+        form.setTour(tour);
+        form.getHeaderLabel().setText("Edit tour: " + tour.getTitle());
+        form.addListener(AddTourForm.SaveEvent.class, this::saveTour);
+        form.addListener(AddTourForm.DeleteEvent.class, this::deleteTour);
+        form.addListener(AddTourForm.CancelEvent.class, e -> closeAddForm());
+
+        return form;
     }
 
     private void closeAddForm() {
-        form.setTour(null);
-        form.setVisible(false);
+        this.getChildren().forEach(c -> {
+            try {
+                var a = c.getId().get();
+                if (a.equals("addFormEdit") || a.equals("addFormCreate"))
+                    remove(c);
+            } catch (Exception e) {
+                // ignored
+            }
+        });
     }
 
     /**

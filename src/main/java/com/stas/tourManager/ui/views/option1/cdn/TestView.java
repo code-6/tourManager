@@ -1,11 +1,9 @@
-package com.stas.tourManager.frontend.views.option1.cdn;
+package com.stas.tourManager.ui.views.option1.cdn;
 
 
-import com.stas.tourManager.frontend.views.MainLayout;
+import com.stas.tourManager.ui.views.MainLayout;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -14,12 +12,9 @@ import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.dom.ElementFactory;
 import com.vaadin.flow.router.Route;
 
 import javax.annotation.PostConstruct;
-import java.util.concurrent.ExecutionException;
 
 @Route(value = "test/cdn", layout = MainLayout.class)
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")

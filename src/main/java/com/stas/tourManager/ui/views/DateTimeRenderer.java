@@ -1,13 +1,9 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.ui.views;
 
 import com.vaadin.flow.data.renderer.BasicRenderer;
-import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.function.ValueProvider;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
-
-import java.time.LocalDateTime;
-import java.util.Locale;
 
 public class DateTimeRenderer<SOURCE> extends BasicRenderer<SOURCE, DateTime> {
 

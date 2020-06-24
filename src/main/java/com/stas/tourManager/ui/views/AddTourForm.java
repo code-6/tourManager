@@ -1,16 +1,15 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.ui.views;
 
 import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
-import com.stas.tourManager.frontend.components.DateRangePickerField;
+import com.stas.tourManager.ui.components.DateRangePickerField;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -30,12 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Locale;
 
-import static com.stas.tourManager.frontend.views.ListToursView.DATE_TIME_FORMAT;
-import static com.stas.tourManager.frontend.views.ListToursView.DATE_TIME_FORMATTER;
+import static com.stas.tourManager.ui.views.ListToursView.DATE_TIME_FORMAT;
+import static com.stas.tourManager.ui.views.ListToursView.DATE_TIME_FORMATTER;
 
 // FIXME: 6/17/20 picker value and date field value is not reset to default after press on add button
 @StyleSheet("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css")
@@ -82,7 +80,7 @@ public class AddTourForm extends FormLayout {
     private TextField title = new TextField();
     private TextArea description = new TextArea();
     // text field for date-picker
-    private DateRangePickerField date = new DateRangePickerField("Date-time range");
+    protected static DateRangePickerField date = new DateRangePickerField("Date-time range");
     private MultiselectComboBox<Guide> guides = new MultiselectComboBox<>();
     private MultiselectComboBox<Driver> drivers = new MultiselectComboBox<>();
     private FileBuffer buffer = new FileBuffer();
@@ -259,6 +257,18 @@ public class AddTourForm extends FormLayout {
         binder.readBean(tour);
     }
 
+    public DateRangePickerField getDate() {
+        return date;
+    }
+
+    public Button getDeleteButton() {
+        return deleteButton;
+    }
+
+    public Label getHeaderLabel() {
+        return headerLabel;
+    }
+
     //region interval converter
 
     /**
@@ -272,16 +282,20 @@ public class AddTourForm extends FormLayout {
          */
         @Override
         public Result<Interval> convertToModel(String value, ValueContext context) {
+            log.debug("convert from string to interval: " + value);
             try {
                 var arr = value.split("-");
                 var from = DateTime.parse(arr[0], DATE_TIME_FORMATTER);
                 var to = DateTime.parse(arr[1], DATE_TIME_FORMATTER);
+                DateRangePickerField.setStartDate(from);
+                DateRangePickerField.setEndDate(to);
                 var interval = new Interval(from, to);
                 // TODO: 12.06.2020 test Interval.parse method
                 return Result.ok(interval);
             } catch (NullPointerException e) {
                 return Result.ok(null);
             }
+
         }
 
         @Override
@@ -291,6 +305,8 @@ public class AddTourForm extends FormLayout {
                 end = value.getEnd();
                 // fix error when press on add tour button.
             } catch (NullPointerException e) {
+                DateRangePickerField.setStartDate(start);
+                DateRangePickerField.setEndDate(end);
                 return "";
             }
             var result = String.format("%s-%s", start.toString(DATE_TIME_FORMAT, Locale.US),
