@@ -15,6 +15,7 @@ public class TourManagerApplication {
 	}
 	@PostConstruct
 	private void init(){
+		System.out.println("asd asd asd ");
 		try {
 			LanguageService.createLang("english");
 			LanguageService.createLang("german");

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -108,6 +109,7 @@ public class ListToursView extends HorizontalLayout {
                 log.debug("tour data before edit: " + tour.toString());
                 // TODO: 6/17/20 change form header
                 //form.initPicker(tour.getFrom(), tour.getTo());
+                form.getDate().init(tour.getFrom(), tour.getTo());
                 editTour(tour);
             });
             return editButton;
@@ -122,6 +124,7 @@ public class ListToursView extends HorizontalLayout {
         createButton.addClickListener(e -> {
             // TODO: 6/17/20 hide delete button
             //form.initPicker(null, null);
+            form.getDate().init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0),DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
             addTour();
         });
     }

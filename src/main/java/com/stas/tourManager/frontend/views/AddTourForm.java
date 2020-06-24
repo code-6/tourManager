@@ -259,6 +259,10 @@ public class AddTourForm extends FormLayout {
         binder.readBean(tour);
     }
 
+    public DateRangePickerField getDate() {
+        return date;
+    }
+
     //region interval converter
 
     /**
