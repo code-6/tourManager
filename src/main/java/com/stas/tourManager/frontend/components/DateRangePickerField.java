@@ -24,9 +24,7 @@ public class DateRangePickerField extends TextField {
     protected void onAttach(AttachEvent event) {
         super.onAttach(event);
         // executing JS should be avoided in constructor
-        getElement().executeJs(
-                "$(function () {\n" +
-                        "    $('#daterange').daterangepicker({\n" +
+        getElement().executeJs("$($0).daterangepicker({\n" +
                         "        timePicker: true,\n" +
                         "        timePicker24Hour: true,\n" +
                         "        timePickerIncrement: 5,\n" +
@@ -40,11 +38,10 @@ public class DateRangePickerField extends TextField {
                         "        }\n" +
                         "    }, function (start, end, label) {\n" +
                         "        const pattern = \"DD.MMM.YYYY HH:mm\";\n" +
-                        "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
+                        "        $($0).val(start.format(pattern)+'-'+end.format(pattern));\n" +
                         "    });\n" +
-                        "$('#daterange').on('cancel.daterangepicker', function(ev, picker) {\n" +
+                        "$($0).on('cancel.daterangepicker', function(ev, picker) {\n" +
                         "      $(this).val('');\n" +
-                        "  });" +
-                        "});", getElement());
+                        "  });", getElement());
     }
 }

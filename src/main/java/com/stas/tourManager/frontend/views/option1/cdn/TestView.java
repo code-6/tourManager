@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 @JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
 @JavaScript("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
 //@JavaScript("./resources/static/js/test-jquery.js")
-public class JqueryTestView extends VerticalLayout {
+public class TestView extends VerticalLayout {
     private Button button = new Button("Open Modal");
     private H1 title = new H1("Test Page");
     private Input textField = new Input();
