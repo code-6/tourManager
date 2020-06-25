@@ -129,6 +129,7 @@ public class DriverService {
     @PostConstruct
     public void init() {
         Faker faker = new Faker();
+
         for (int i = 0; i < 10; i++) {
             addDriver(faker.name().firstName(), faker.name().lastName());
         }

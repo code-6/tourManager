@@ -20,7 +20,7 @@ public class MainLayout extends AppLayout {
         var guidesList = new Tab();
         var test = new Tab();
 
-        picasso.add(new RouterLink("Picasso", PicassoView.class));
+        picasso.add(new RouterLink("Main", MainView.class));
         toursList.add(new RouterLink("Tours", ListToursView.class));
         driversList.add(new RouterLink("Drivers", ListDriversView.class));
         guidesList.add(new RouterLink("Guides", ListGuidesView.class));
@@ -28,7 +28,6 @@ public class MainLayout extends AppLayout {
 
         var tabs = new Tabs(picasso, toursList, driversList, guidesList, test);
         addToNavbar(tabs);
-
     }
 
 }

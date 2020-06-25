@@ -195,11 +195,11 @@ public class AddTourForm extends FormLayout {
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.addClickListener(event -> {
             new MyConfirmDialog("Confirm dialog", "r u sure?", e -> {
-                var t = binder.getBean();
-                log.debug("tour before delete in binder : " + (t == null ? "null" : t.toString()));
-                log.debug("global tour before delete: " + tour);
+//                var t = binder.getBean();
+//                log.debug("tour before delete in binder : " + (t == null ? "null" : t.toString()));
+//                log.debug("global tour before delete: " + tour);
                 fireEvent(new DeleteEvent(this, tour));
-                Notification.show("Deleted", 2000, Notification.Position.TOP_END);
+                Notification.show("Tour deleted", 2000, Notification.Position.TOP_END);
             }).open();
         });
     }
@@ -280,6 +280,7 @@ public class AddTourForm extends FormLayout {
         date.init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0),DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
         deleteButton.setVisible(false);
         headerLabel.setText("Create new tour");
+
     }
 
     //region interval converter
