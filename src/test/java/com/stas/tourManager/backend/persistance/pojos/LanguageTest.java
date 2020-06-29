@@ -1,5 +1,6 @@
 package com.stas.tourManager.backend.persistance.pojos;
 
+import com.stas.tourManager.backend.persistance.services.LanguageService;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;

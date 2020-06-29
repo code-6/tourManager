@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class Driver extends Participant {
 
-    private Car car;
+    private String car;
 
     public Driver() {
         super();
@@ -19,11 +19,11 @@ public class Driver extends Participant {
         super(firstName, middleName, lastName);
     }
 
-    public Car getCar() {
+    public String getCar() {
         return car;
     }
 
-    public void setCar(Car car) {
+    public void setCar(String car) {
         this.car = car;
     }
 
@@ -61,7 +61,7 @@ public class Driver extends Participant {
                 '}';
     }
 
-    public Driver withCar(Car car) {
+    public Driver withCar(String car) {
         this.setCar(car);
         return this;
     }

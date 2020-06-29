@@ -14,7 +14,7 @@ public class DriverService {
     protected static List<Driver> drivers = new ArrayList<>();
     private Logger logger = LoggerFactory.getLogger(DriverService.class);
 
-    public void addDriver(String firstName, String lastName, Car car) {
+    public void addDriver(String firstName, String lastName, String car) {
         var driver = new Driver(firstName, lastName).withCar(car);
         drivers.add(driver);
         logger.info("created new driver: " + driver.toString());
@@ -90,7 +90,7 @@ public class DriverService {
     /**
      * @// FIXME: 4/28/20 logging doesn't shows old data.
      */
-    public void updateDriver(long id, String firstName, String middleName, String lastName, Car car) {
+    public void updateDriver(long id, String firstName, String middleName, String lastName, String car) {
         var logMessage = "update driver. Old data: ";
         var oldDriver = getDriver(id);
         if (oldDriver != null && oldDriver.isPresent() && !oldDriver.isEmpty()) {

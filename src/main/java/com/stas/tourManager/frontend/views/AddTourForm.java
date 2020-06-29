@@ -189,7 +189,7 @@ public class AddTourForm extends FormLayout {
         });
 
         // enable or disable save button depends on validation status of binder
-        binder.addStatusChangeListener(evt -> saveButton.setEnabled(binder.isValid()));
+        binder.addStatusChangeListener(evt -> saveButton.setEnabled(binder.isValid() && binder.hasChanges()));
 
         deleteButton.addClickShortcut(Key.DELETE);
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);

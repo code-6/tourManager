@@ -18,10 +18,7 @@
 /*        display: none;*/
 /*    }*/
 /*}*/
-
- .tours-list .th .td {
-     align-content: flex-start;
- }
- .tours-list .button-edit .button-create {
-     align-content: flex-end;
- }
+.title-column {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -1,7 +1,7 @@
 package com.stas.tourManager;
 
-import com.stas.tourManager.backend.persistance.pojos.Car;
-import com.stas.tourManager.backend.persistance.pojos.LanguageService;
+import com.stas.tourManager.backend.persistance.services.CarService;
+import com.stas.tourManager.backend.persistance.services.LanguageService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -21,10 +21,10 @@ public class TourManagerApplication {
 			LanguageService.createLang("german");
 			System.out.println("Languages created");
 
-			Car.createCar("mercedes");
-			Car.createCar("nissan");
-			Car.createCar("audi");
-			Car.createCar("toyota");
+			CarService.createCar("mercedes");
+			CarService.createCar("nissan");
+			CarService.createCar("audi");
+			CarService.createCar("toyota");
 			System.out.println("Cars created");
 		} catch (LanguageService.InvalidLanguageException e) {
 			e.printStackTrace();

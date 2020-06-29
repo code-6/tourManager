@@ -1,7 +1,7 @@
 package com.stas.tourManager.frontend.views;
 
-import com.stas.tourManager.backend.persistance.pojos.Car;
 import com.stas.tourManager.backend.persistance.pojos.Driver;
+import com.stas.tourManager.backend.persistance.services.CarService;
 import com.stas.tourManager.backend.persistance.services.DriverService;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -19,7 +19,7 @@ public class AddDriverForm extends AddParticipantForm {
     public AddDriverForm(boolean withDelete, String title, Driver driver, DriverService driverService) {
         super(withDelete, title);
 
-        binder.bindInstanceFields(this);
+        setupComboBox();
         binder.setBean(driver);
 
         fieldsLayout2.add(car);
@@ -27,12 +27,14 @@ public class AddDriverForm extends AddParticipantForm {
         this.driverService = driverService;
 
         setupButtons();
-        setupComboBox();
 
         init();
+        binder.bindInstanceFields(this);
     }
 
     private void setupButtons() {
+        binder.addStatusChangeListener(evt -> saveButton.setEnabled(binder.isValid() && binder.hasChanges()));
+
         saveButton.addClickListener(event -> {
             save();
             ListDriversView.updateTable();
@@ -55,12 +57,12 @@ public class AddDriverForm extends AddParticipantForm {
     }
 
     private void setupComboBox() {
-        car.setItems(Car.getCars());
+        car.setItems(CarService.getCarsList());
         //car.setItemLabelGenerator(Car::getCar);
         car.setAllowCustomValue(true);
         car.addCustomValueSetListener(event -> {
             var source = event.getDetail();
-            var c = Car.createCar(source);
+            var c = CarService.createCar(source);
             // FIX bug #001. When save language that not exist yet.
             car.setValue(c);
         });

@@ -63,8 +63,9 @@ public class ListDriversView extends VerticalLayout {
          * */
         grid.setColumns("fullName");
         grid.addColumn(g -> {
+
             var car = g.getCar();
-            return car == null ? "" : car.getCar();
+            return car;
         }).setHeader("Car").setSortable(true);
         // add edit button to each row.
         grid.addComponentColumn(driver -> {

@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
@@ -69,36 +70,40 @@ public class ListToursView extends HorizontalLayout {
         initGrid();
 
         setSizeFull();
+        setClassName("tours-list-view");
 
         add(form);
     }
 
     private void initGrid() {
-        grid.addClassName("tours-list");
+        grid.addClassName("tours-grid");
         var toursList = tourService.getAll();
         grid.setItems(toursList);
+        grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
 
-        grid.setColumns("id", "title", "from", "to");
+        grid.setColumns("title", "from", "to");
 
         // set auto width to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
 
-        grid.getColumnByKey("id")
-                .setAutoWidth(false)
-                .setWidth("35px");
+        grid.getColumnByKey("title").setClassNameGenerator(t-> "title-column");
 
         grid.removeColumnByKey("from");
         // LocalDateTimeRenderer for date and time
         grid.addColumn(new DateTimeRenderer<>(Tour::getFrom,
                 DATE_TIME_FORMATTER.withLocale(Locale.US)))
                 .setComparator(Comparator.comparing(Tour::getFrom))
+                .setTextAlign(ColumnTextAlign.START)
                 .setHeader("From").setSortable(true).setVisible(true);
 
         grid.removeColumnByKey("to");
         grid.addColumn(new DateTimeRenderer<>(Tour::getTo,
                 DATE_TIME_FORMATTER.withLocale(Locale.US)))
                 .setComparator(Comparator.comparing(Tour::getTo))
+                .setTextAlign(ColumnTextAlign.START)
                 .setHeader("To").setSortable(true).setVisible(true);
+
+
 
 //        // truncate description column
 //        // FIXME: 6/17/20 why this column at first position?
@@ -109,12 +114,10 @@ public class ListToursView extends HorizontalLayout {
 
         grid.addComponentColumn(tour -> {
             var hl = new HorizontalLayout();
-            hl.setMaxWidth("150px");
-            hl.setMinWidth("50px");
-            hl.setPadding(false);
-            hl.setBoxSizing(BoxSizing.BORDER_BOX);
+            hl.setAlignItems(Alignment.START);
             tour.getDrivers().forEach(driver -> {
                 var a = new Anchor();
+                a.addClassName("a");
                 a.setText(driver.getFullName());
                 a.getElement().addEventListener("click", click -> {
                     Notification.show("Driver \""+driver.getFullName()+"\" selected", 3000, Notification.Position.MIDDLE);
@@ -122,17 +125,15 @@ public class ListToursView extends HorizontalLayout {
                 hl.add(a);
             });
             return hl;
-        }).setHeader("Drivers");
+        }).setTextAlign(ColumnTextAlign.START).setHeader("Drivers").setWidth("20%");
 
         grid.addComponentColumn(tour -> {
             var hl = new HorizontalLayout();
-            hl.setMaxWidth("150px");
-            hl.setMinWidth("50px");
-            hl.setPadding(false);
-            hl.setBoxSizing(BoxSizing.BORDER_BOX);
+            hl.setAlignItems(Alignment.START);
             tour.getGuides().forEach(guide -> {
 
                 var a = new Anchor();
+                a.addClassName("a");
                 a.setText(guide.getFullName());
                 a.getElement().addEventListener("click", click -> {
                     Notification.show("Guide \""+guide.getFullName()+"\" selected", 3000, Notification.Position.MIDDLE);
@@ -140,7 +141,7 @@ public class ListToursView extends HorizontalLayout {
                 hl.add(a);
             });
             return hl;
-        }).setHeader("Guides").setWidth("200px");
+        }).setTextAlign(ColumnTextAlign.START).setHeader("Guides").setWidth("20%");
 
 
         // add edit button to each row and create button as header of the column.
@@ -158,10 +159,10 @@ public class ListToursView extends HorizontalLayout {
                 form.forEdit();
             });
             return editButton;
-        }).setHeader(createButton);
+        }).setTextAlign(ColumnTextAlign.END).setHeader(createButton);
 
         grid.setSizeFull();
-        grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT);
+
 
         add(grid);
     }

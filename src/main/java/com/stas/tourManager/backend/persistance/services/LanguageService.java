@@ -1,4 +1,4 @@
-package com.stas.tourManager.backend.persistance.pojos;
+package com.stas.tourManager.backend.persistance.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
