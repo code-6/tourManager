@@ -149,7 +149,6 @@ public class AddTourForm extends FormLayout {
 
         date.setId("daterange");
         date.setSizeFull();
-        //date.setReadOnly(true);
     }
 
     private void configComboBoxes(List<Guide> guidesList, List<Driver> driversList) {

@@ -48,7 +48,7 @@ public class ListToursView extends HorizontalLayout {
 
     private Grid<Tour> grid = new Grid<>(Tour.class);
 
-    private final Button createButton = new Button("add", VaadinIcon.PLUS.create());
+    private final Button createButton = new Button( VaadinIcon.PLUS.create());
 
     private final AddTourForm form;
 
@@ -76,7 +76,7 @@ public class ListToursView extends HorizontalLayout {
     }
 
     private void initGrid() {
-        grid.addClassName("tours-grid");
+        grid.addClassNames("grid", "tours-grid");
         var toursList = tourService.getAll();
         grid.setItems(toursList);
         grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
@@ -146,7 +146,7 @@ public class ListToursView extends HorizontalLayout {
 
         // add edit button to each row and create button as header of the column.
         grid.addComponentColumn(tour -> {
-            var editButton = new Button("edit", VaadinIcon.EDIT.create());
+            var editButton = new Button( VaadinIcon.EDIT.create());
             editButton.addClassName("button-edit");
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
             editButton.addClickListener(e -> {

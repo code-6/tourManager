@@ -79,6 +79,7 @@ public class ListDriversView extends VerticalLayout {
         // set content fit to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
         grid.setItems(driversList);
+        grid.addClassNames("grid", "drivers-grid");
         add(grid);
     }
 

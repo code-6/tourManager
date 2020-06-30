@@ -75,6 +75,7 @@ public class ListGuidesView extends VerticalLayout {
         // set content fit to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
         grid.setItems(guidesList);
+        grid.addClassNames("grid", "guides-grid");
         //grid.getEditor().setBuffered(true);
         add(grid);
     }
