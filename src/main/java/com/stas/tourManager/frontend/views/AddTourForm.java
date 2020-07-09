@@ -22,6 +22,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.shared.Registration;
@@ -69,7 +70,7 @@ public class AddTourForm extends FormLayout {
     private DateRangePickerField date = new DateRangePickerField("Date-time range");
     private MultiselectComboBox<Guide> guides = new MultiselectComboBox<>();
     private MultiselectComboBox<Driver> drivers = new MultiselectComboBox<>();
-    private FileBuffer buffer = new FileBuffer();
+    private MemoryBuffer buffer = new MemoryBuffer();
     private Upload file = new Upload(buffer);
 
     protected final Button saveButton = new Button("save");
@@ -126,16 +127,12 @@ public class AddTourForm extends FormLayout {
 
         file.addSucceededListener(event -> {
             final char s = File.separatorChar;
-
-            log.debug("FILE NAME from event: " + event.getFileName());
-            log.debug("File name from buffer: " + buffer.getFileName());
             File f = new File(TourManagerApplication.ROOT_PATH + s + tour.getId() + s + event.getFileName());
-
+            var is = buffer.getInputStream();
             try {
-                FileUtils.touch(f);
-                FileUtils.copyFile(f,  buffer.receiveUpload(event.getFileName(), buffer.getFileData().getMimeType()));
+                //var bytes = is.readAllBytes();
+                FileUtils.copyToFile(is, f);
             } catch (IOException e) {
-
                 e.printStackTrace();
             }
             tour.setFile(f);

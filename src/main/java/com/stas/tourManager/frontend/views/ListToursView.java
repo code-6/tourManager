@@ -4,30 +4,26 @@ import com.stas.tourManager.backend.persistance.pojos.Tour;
 import com.stas.tourManager.backend.persistance.services.DriverService;
 import com.stas.tourManager.backend.persistance.services.GuideService;
 import com.stas.tourManager.backend.persistance.services.TourService;
+import com.stas.tourManager.util.DesktopAPI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JavaScript;
-import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.awt.*;
+import java.io.IOException;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 
 //@CssImport("./styles/shared-styles.css")
@@ -84,7 +80,7 @@ public class ListToursView extends HorizontalLayout {
         grid.setItems(toursList);
         grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
 
-        grid.setColumns("title", "from", "to", "file");
+        grid.setColumns("title", "from", "to");
 
         // set auto width to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
@@ -103,6 +99,24 @@ public class ListToursView extends HorizontalLayout {
                 .setComparator(Comparator.comparing(Tour::getTo))
                 .setTextAlign(ColumnTextAlign.START)
                 .setHeader("To").setSortable(true).setVisible(true);
+
+        grid.addComponentColumn(tour -> {
+            var anchor = new Anchor();
+            anchor.setText(tour.getFile().getName());
+            anchor.getElement().addEventListener("click", e -> {
+                try {
+                    if(Desktop.isDesktopSupported())
+                        Desktop.getDesktop().open(tour.getFile());
+                    else
+                        DesktopAPI.open(tour.getFile());
+
+                } catch (IOException ioException) {
+                    Notification.show("File was removed", 3000, Notification.Position.MIDDLE);
+                    ioException.printStackTrace();
+                }
+            });
+            return anchor;
+        }).setHeader("File").setSortable(true).setWidth("150px").setAutoWidth(false);
 
 //        // truncate description column
 //        // FIXME: 6/17/20 why this column at first position?
