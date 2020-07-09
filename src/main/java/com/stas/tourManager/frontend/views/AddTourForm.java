@@ -1,5 +1,7 @@
 package com.stas.tourManager.frontend.views;
 
+import ch.qos.logback.core.util.FileUtil;
+import com.stas.tourManager.TourManagerApplication;
 import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
@@ -23,6 +25,7 @@ import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.shared.Registration;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -31,6 +34,10 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,29 +50,6 @@ import static com.stas.tourManager.frontend.views.ListToursView.DATE_TIME_FORMAT
 @JavaScript("https://cdn.jsdelivr.net/momentjs/latest/moment.min.js")
 @JavaScript("https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js")
 public class AddTourForm extends FormLayout {
-    private static String script = "$(function () {\n" +
-            "    $('#daterange').daterangepicker({\n" +
-            "        timePicker: true,\n" +
-            "        timePicker24Hour: true,\n" +
-            "        timePickerIncrement: 5,\n" +
-            "        autoApply: true,\n" +
-            "        startDate: '%s',\n" +
-            "        endDate: '%s',\n" +
-            "        cancelLabel: 'Clear',\n" +
-            "        opens: 'left',\n" +
-            "        drops: 'auto',\n" +
-            "        locale: {\n" +
-            "           format: 'DD.MMM.YYYY HH:mm',\n" +
-            "           cancelLabel: 'Clear'\n" +
-            "        }\n" +
-            "    }, function (start, end, label) {\n" +
-            "        const pattern = \"DD.MMM.YYYY HH:mm\";\n" +
-            "        $('#daterange').val(start.format(pattern)+'-'+end.format(pattern));\n" +
-            "    });\n" +
-            "$('#daterange').on('cancel.daterangepicker', function(ev, picker) {\n" +
-            "      $(this).val('');\n" +
-            "  });" +
-            "});";
 
     private static final Logger log = LoggerFactory.getLogger(AddTourForm.class);
     // default current date and time for picker. This need to reset end time in picker to 00:00
@@ -141,8 +125,20 @@ public class AddTourForm extends FormLayout {
         description.setSizeFull();
 
         file.addSucceededListener(event -> {
+            final char s = File.separatorChar;
+
             log.debug("FILE NAME from event: " + event.getFileName());
             log.debug("File name from buffer: " + buffer.getFileName());
+            File f = new File(TourManagerApplication.ROOT_PATH + s + tour.getId() + s + event.getFileName());
+
+            try {
+                FileUtils.touch(f);
+                FileUtils.copyFile(f,  buffer.receiveUpload(event.getFileName(), buffer.getFileData().getMimeType()));
+            } catch (IOException e) {
+
+                e.printStackTrace();
+            }
+            tour.setFile(f);
         });
 //        upload.setSizeFull();
         file.setWidth("87%");
@@ -223,36 +219,6 @@ public class AddTourForm extends FormLayout {
         }
     }
 
-    // FIXME: 23.06.2020 for now everything is working as expected, but to much js execution and possibly excess calls and initialization
-    public void initPicker(DateTime startDate, DateTime endDate) {
-
-        if (startDate == null && endDate == null) {
-            var s = String.format(script, DateTime.now().withHourOfDay(0).withMinuteOfHour(0).toString(DATE_TIME_FORMAT, Locale.US),
-                    DateTime.now().withHourOfDay(0).withMinuteOfHour(0).toString(DATE_TIME_FORMAT, Locale.US));
-            UI.getCurrent().getPage().executeJs(s);
-            log.debug("Executed js zero time : " + s);
-            UI.getCurrent().getPage().executeJs("$('#daterange').val('')");
-
-        } else {
-            var s = String.format(script, startDate.toString(DATE_TIME_FORMAT, Locale.US),
-                    endDate.toString(DATE_TIME_FORMAT, Locale.US));
-            UI.getCurrent().getPage().executeJs(s);
-            log.debug("Executed js tour time : " + s);
-            UI.getCurrent().getPage()
-                    .executeJs("$('#daterange').val('" + startDate.toString(DATE_TIME_FORMAT, Locale.US) + "-" + endDate.toString(DATE_TIME_FORMAT, Locale.US) + "')");
-        }
-    }
-
-//    @Override
-//    protected void onAttach(AttachEvent event) {
-//        super.onAttach(event);
-//        // FIXME: 13.06.2020 possibly no need to use format in value setting because used locale in js script
-//        var s = String.format(script, start.toString(DATE_TIME_FORMAT, Locale.US), end.toString(DATE_TIME_FORMAT, Locale.US));
-//        // executing JS should be avoided in constructor
-//        getElement().executeJs(s);
-//        System.out.println("Executed JS: " + s);
-//    }
-
     public void setTour(Tour tour) {
         this.tour = tour;
         binder.readBean(tour);
@@ -264,19 +230,20 @@ public class AddTourForm extends FormLayout {
 
     /**
      * use this to change view header and appear delete button
+     *
      * @implNote call only after setTour(Tour tour)
-     * */
-    public void forEdit(){
+     */
+    public void forEdit() {
         date.init(tour.getFrom(), tour.getTo());
-        headerLabel.setText("Edit tour \""+tour.getTitle()+"\"");
+        headerLabel.setText("Edit tour \"" + tour.getTitle() + "\"");
         deleteButton.setVisible(true);
     }
 
     /**
      * use this to change view header and hide delete button
-     * */
-    public void forCreate(){
-        date.init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0),DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
+     */
+    public void forCreate() {
+        date.init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0), DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
         deleteButton.setVisible(false);
         headerLabel.setText("Create new tour");
 

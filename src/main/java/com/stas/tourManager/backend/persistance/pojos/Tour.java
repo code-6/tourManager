@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -20,7 +21,7 @@ public class Tour extends AbstractEntity {
     private Interval date;
     private Set<Guide> guides = new HashSet<>();
     private Set<Driver> drivers = new HashSet<>();
-    private String file;
+    private File file;
 
     private DateTime from;
     private DateTime to;
@@ -142,11 +143,11 @@ public class Tour extends AbstractEntity {
         this.drivers = drivers;
     }
 
-    public String getFile() {
+    public File getFile() {
         return file;
     }
 
-    public void setFile(String file) {
+    public void setFile(File file) {
         this.file = file;
     }
     //endregion

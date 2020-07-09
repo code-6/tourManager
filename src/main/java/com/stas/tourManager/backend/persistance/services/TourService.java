@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,6 +24,7 @@ public class TourService {
     public void saveOrUpdate(Tour tour) {
         if(!exist(tour)){
             tours.add(tour);
+            createFolder(tour);
             log.info("create new tour: " + tour.toString());
         }else{
             update(tour);
@@ -38,6 +42,16 @@ public class TourService {
     public boolean delete(Tour tour) {
         log.info("delete tour: " + tour.toString());
         return tours.remove(tour);
+    }
+
+    private void createFolder(Tour tour) {
+        final char sep = File.separatorChar;
+        String rootPath = System.getenv("TOUR_DOCS_ROOT_PATH");
+        if (rootPath == null || rootPath.isEmpty())
+            rootPath = '.' + sep + "tourManagerDocsRoot";
+        if (!Files.exists(Paths.get(rootPath + sep + tour.getTitle()))) {
+            new File( rootPath + sep + tour.getId()).mkdir();
+        }
     }
 
     public boolean exist(Tour tour) {
@@ -66,7 +80,7 @@ public class TourService {
                     LocalDateTime.now().plusDays(ThreadLocalRandom.current().nextInt(1, 15)).toDateTime()));
             tour.addDriver(DriverService.getRandomDriver());
             tour.addGuide(GuideService.getRandomGuide());
-            tour.setFile(faker.file().fileName());
+            tour.setFile(new File(faker.file().fileName()));
             saveOrUpdate(tour);
         }
         log.debug("init tours complete");

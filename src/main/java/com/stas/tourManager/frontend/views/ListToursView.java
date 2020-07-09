@@ -7,6 +7,7 @@ import com.stas.tourManager.backend.persistance.services.TourService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -29,8 +30,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+//@CssImport("./styles/shared-styles.css")
+//@JavaScript("https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
+@JavaScript("./scripts/tableFilter.js")
 @Route(value = "tours", layout = MainLayout.class)
-@CssImport("./styles/shared-styles.css")
 public class ListToursView extends HorizontalLayout {
     private static final Logger log = LoggerFactory.getLogger(ListToursView.class);
     public static final String DATE_TIME_FORMAT = "dd.MMM.yyyy HH:mm";
@@ -76,17 +79,15 @@ public class ListToursView extends HorizontalLayout {
     }
 
     private void initGrid() {
-        grid.addClassNames("grid", "tours-grid");
+        grid.addClassNames("grid", "grid-tours");
         var toursList = tourService.getAll();
         grid.setItems(toursList);
         grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
 
-        grid.setColumns("title", "from", "to");
+        grid.setColumns("title", "from", "to", "file");
 
         // set auto width to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
-
-        grid.getColumnByKey("title").setClassNameGenerator(t-> "title-column");
 
         grid.removeColumnByKey("from");
         // LocalDateTimeRenderer for date and time
@@ -102,8 +103,6 @@ public class ListToursView extends HorizontalLayout {
                 .setComparator(Comparator.comparing(Tour::getTo))
                 .setTextAlign(ColumnTextAlign.START)
                 .setHeader("To").setSortable(true).setVisible(true);
-
-
 
 //        // truncate description column
 //        // FIXME: 6/17/20 why this column at first position?
@@ -125,7 +124,7 @@ public class ListToursView extends HorizontalLayout {
                 hl.add(a);
             });
             return hl;
-        }).setTextAlign(ColumnTextAlign.START).setHeader("Drivers").setWidth("20%");
+        }).setTextAlign(ColumnTextAlign.START).setHeader("Drivers").setAutoWidth(true);
 
         grid.addComponentColumn(tour -> {
             var hl = new HorizontalLayout();
@@ -141,7 +140,7 @@ public class ListToursView extends HorizontalLayout {
                 hl.add(a);
             });
             return hl;
-        }).setTextAlign(ColumnTextAlign.START).setHeader("Guides").setWidth("20%");
+        }).setTextAlign(ColumnTextAlign.START).setHeader("Guides").setAutoWidth(true);
 
 
         // add edit button to each row and create button as header of the column.
@@ -162,7 +161,6 @@ public class ListToursView extends HorizontalLayout {
         }).setTextAlign(ColumnTextAlign.END).setHeader(createButton);
 
         grid.setSizeFull();
-
 
         add(grid);
     }

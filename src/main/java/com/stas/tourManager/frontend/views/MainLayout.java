@@ -59,7 +59,7 @@ public class MainLayout extends AppLayout {
         search.setPlaceholder("type to search");
 
         var hl2 = new HorizontalLayout(search, button);
-        hl2.setAlignItems(FlexComponent.Alignment.END);
+        hl2.setAlignItems(FlexComponent.Alignment.BASELINE);
         addToNavbar(hl, hl2);
     }
 
