@@ -16,7 +16,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-@PWA(name = "Picasso", iconPath = "img/icons/android-chrome-192x192.png", shortName = "PCS")
+@PWA(name = "Tour Manager", iconPath = "img/icons/android-chrome-512x512.png", shortName = "TM")
 public class MainLayout extends AppLayout {
     public MainLayout() {
         initHeader();
@@ -55,10 +55,7 @@ public class MainLayout extends AppLayout {
             }
         });
 
-        var search = new TextField();
-        search.setPlaceholder("type to search");
-
-        var hl2 = new HorizontalLayout(search, button);
+        var hl2 = new HorizontalLayout(button);
         hl2.setAlignItems(FlexComponent.Alignment.BASELINE);
         addToNavbar(hl, hl2);
     }

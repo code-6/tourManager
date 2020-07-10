@@ -19,6 +19,7 @@ repositories {
     maven {
         url "https://maven.vaadin.com/vaadin-addons"
     }
+
     mavenCentral()
 
 }
@@ -50,6 +51,7 @@ dependencies {
     compile group: 'org.vaadin.gatanaso', name: 'multiselect-combo-box-flow', version: '3.0.1'
     // https://mvnrepository.com/artifact/com.vaadin/vaadin-upload-flow
     compile group: 'com.vaadin', name: 'vaadin-upload-flow', version: '3.1.0'
+    compile group: 'org.vaadin.addons', name: 'filtering-grid', version: '0.1.1'
 
 }
 
