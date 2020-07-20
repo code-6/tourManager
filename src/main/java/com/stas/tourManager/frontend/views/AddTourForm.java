@@ -1,6 +1,5 @@
 package com.stas.tourManager.frontend.views;
 
-import ch.qos.logback.core.util.FileUtil;
 import com.stas.tourManager.TourManagerApplication;
 import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Guide;
@@ -12,7 +11,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Input;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -21,11 +19,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.shared.Registration;
+import elemental.json.Json;
+import elemental.json.JsonArray;
+import elemental.json.JsonObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
@@ -34,11 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 
@@ -234,12 +231,15 @@ public class AddTourForm extends FormLayout {
         date.init(tour.getFrom(), tour.getTo());
         headerLabel.setText("Edit tour \"" + tour.getTitle() + "\"");
         deleteButton.setVisible(true);
-        try {
-            buffer.receiveUpload(tour.getFile().getName(), Files.probeContentType(tour.getFile().toPath()));
-            file.setReceiver(buffer);
-        } catch (IOException e) {
-            log.error(ExceptionUtils.getStackTrace(e));
-        }
+        // wtf is that?
+//        try {
+//            buffer.receiveUpload(tour.getFile().getName(), Files.probeContentType(tour.getFile().toPath()));
+//            file.setReceiver(buffer);
+//        } catch (IOException e) {
+//            log.error(ExceptionUtils.getStackTrace(e));
+//        }
+        resetUploadValue(tour);
+
     }
 
     /**
@@ -249,6 +249,25 @@ public class AddTourForm extends FormLayout {
         date.init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0), DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
         deleteButton.setVisible(false);
         headerLabel.setText("Create new tour");
+        resetUploadValue(null);
+    }
+
+    // use this method to reset file upload component value.
+    // this is necessary in order to reset upload value when create new tour, and set value from tour
+    // when edit
+    private void resetUploadValue(Tour tour) {
+        JsonArray jsonArray = Json.createArray();
+        JsonObject jsonObject = Json.createObject();
+        if(tour != null){
+            var f = tour.getFile();
+            if (f != null) {
+                jsonObject.put("name", f.getName());
+                jsonObject.put("progress", 100);
+                jsonObject.put("complete", true);
+                jsonArray.set(0, jsonObject);
+            }
+        }
+        file.getElement().setPropertyJson("files", jsonArray);
     }
 
     //region interval converter

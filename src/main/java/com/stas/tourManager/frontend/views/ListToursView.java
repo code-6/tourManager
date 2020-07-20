@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.Null;
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Locale;
@@ -108,11 +109,9 @@ public class ListToursView extends HorizontalLayout {
 
         grid.addComponentColumn(tour -> {
             var anchor = new Anchor();
-            try{
-                anchor.setText(tour.getFile().getName());
-            }catch (NullPointerException e){
-                e.printStackTrace();
-            }
+            var tourFile = tour.getFile();
+            if(tourFile != null)
+                anchor.setText(tourFile.getName());
 
             anchor.getElement().addEventListener("click", e -> {
                 try {
@@ -121,9 +120,9 @@ public class ListToursView extends HorizontalLayout {
                     else
                         DesktopAPI.open(tour.getFile());
 
-                } catch (IOException ioException) {
-                    Notification.show("File was removed", 3000, Notification.Position.MIDDLE);
-                    ioException.printStackTrace();
+                } catch (IOException exception) {
+                    Notification.show("File:"+tour.getFile().getName()+" was removed or not exist", 3000, Notification.Position.MIDDLE);
+                    exception.printStackTrace();
                 }
             });
             return anchor;
