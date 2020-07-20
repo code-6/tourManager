@@ -48,8 +48,14 @@ public class DateRangePickerField extends TextField {
                 "$($0).on('cancel.daterangepicker', function(ev, picker) {\n" +
                 "      $(this).val('');\n" +
                 "  });";
-        getElement().executeJs(String.format(script, start.toString(DATE_TIME_FORMAT, Locale.US),
-                end.toString(DATE_TIME_FORMAT, Locale.US)), getElement());
+        try{
+            getElement().executeJs(String.format(script, start.toString(DATE_TIME_FORMAT, Locale.US),
+                    end.toString(DATE_TIME_FORMAT, Locale.US)), getElement());
+        }catch (NullPointerException e){
+            var s = DateTime.now().withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0);
+            getElement().executeJs(String.format(script, s, s), getElement());
+        }
+
     }
 
     protected void onAttach(AttachEvent event) {

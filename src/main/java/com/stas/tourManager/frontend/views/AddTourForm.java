@@ -234,6 +234,12 @@ public class AddTourForm extends FormLayout {
         date.init(tour.getFrom(), tour.getTo());
         headerLabel.setText("Edit tour \"" + tour.getTitle() + "\"");
         deleteButton.setVisible(true);
+        try {
+            buffer.receiveUpload(tour.getFile().getName(), Files.probeContentType(tour.getFile().toPath()));
+            file.setReceiver(buffer);
+        } catch (IOException e) {
+            log.error(ExceptionUtils.getStackTrace(e));
+        }
     }
 
     /**
@@ -243,7 +249,6 @@ public class AddTourForm extends FormLayout {
         date.init(DateTime.now().withHourOfDay(0).withSecondOfMinute(0), DateTime.now().withHourOfDay(0).withSecondOfMinute(0));
         deleteButton.setVisible(false);
         headerLabel.setText("Create new tour");
-
     }
 
     //region interval converter
