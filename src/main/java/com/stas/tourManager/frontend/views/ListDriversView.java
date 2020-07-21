@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Route(value = "drivers", layout = MainLayout.class)
-public class ListDriversView extends VerticalLayout {
+public class ListDriversView extends VerticalLayout implements IFilter {
     private Logger logger = LoggerFactory.getLogger(ListDriversView.class);
     private static DriverService driverService;
     private static Grid<Driver> grid = new Grid<>(Driver.class);
@@ -81,6 +81,17 @@ public class ListDriversView extends VerticalLayout {
         grid.setItems(driversList);
         grid.addClassNames("grid", "drivers-grid");
         add(grid);
+
+        MainLayout.registerView(this);
     }
 
+    @Override
+    public void filter(String text) {
+        grid.setItems(driverService.filter(text));
+    }
+
+    @Override
+    public void updateGrid() {
+        grid.setItems(driverService.getDrivers());
+    }
 }

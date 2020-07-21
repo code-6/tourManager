@@ -163,4 +163,12 @@ public class DriverService {
     public static Driver getRandomDriver() {
         return drivers.get(new Random().nextInt(drivers.size()));
     }
+
+    public List<Driver> filter(String text) {
+
+        var list = drivers.stream()
+                .filter(driver -> driver.toString().toLowerCase().matches("(.*)"+text.toLowerCase()+"(.*)"))
+                .collect(Collectors.toList());
+        return list;
+    }
 }

@@ -32,7 +32,7 @@ import java.util.NoSuchElementException;
 //@JavaScript("https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
 //@JavaScript("./scripts/tableFilter.js")
 @Route(value = "tours", layout = MainLayout.class)
-public class ListToursView extends HorizontalLayout {
+public class ListToursView extends HorizontalLayout implements IFilter{
     private static final Logger log = LoggerFactory.getLogger(ListToursView.class);
     public static final String DATE_TIME_FORMAT = "dd.MMM.yyyy HH:mm";
     public static final DateTimeFormatter DATE_TIME_FORMATTER;
@@ -74,6 +74,7 @@ public class ListToursView extends HorizontalLayout {
         setClassName("tours-list-view");
 
         add(form);
+        MainLayout.registerView(this);
     }
 
     private void initGrid() {
@@ -204,8 +205,10 @@ public class ListToursView extends HorizontalLayout {
         }
     }
 
-    private void filter(String string){
+    @Override
+    public void filter(String string){
         grid.setItems(tourService.filter(string));
+
     }
 
     private void initButtons() {
@@ -254,7 +257,8 @@ public class ListToursView extends HorizontalLayout {
      * @implNote how this method will affect on load if there will be more than thousands rows?
      * todo : make cacheble
      */
-    private void updateGrid() {
+    @Override
+    public void updateGrid() {
         grid.setItems(tourService.getAll());
     }
 
