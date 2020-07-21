@@ -1,6 +1,7 @@
 package com.stas.tourManager.backend.persistance.services;
 
 import com.github.javafaker.Faker;
+import com.stas.tourManager.backend.persistance.pojos.Driver;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
 import org.joda.time.Interval;
 import org.joda.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Service
 public class TourService {
@@ -84,5 +86,31 @@ public class TourService {
             saveOrUpdate(tour);
         }
         log.debug("init tours complete");
+    }
+
+    public List<Tour> filterByDriver(Driver driver){
+        return tours.stream().filter(tour ->
+            tour.getDrivers().stream().anyMatch(d -> d.equals(driver))
+        ).collect(Collectors.toList());
+    }
+
+    public List<Tour> filterByDriver(List<Driver> drivers){
+        List<Tour> result = new ArrayList<>();
+        for (Tour t : tours) {
+            for (Driver d : t.getDrivers()) {
+                for (Driver dd : drivers) {
+                    if (d.equals(dd))
+                        result.add(t);
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<Tour> filter(String string){
+        var list = tours.stream()
+                .filter(tour -> tour.toString().toLowerCase().matches("(.*)"+string.toLowerCase()+"(.*)"))
+                .collect(Collectors.toList());
+        return list;
     }
 }

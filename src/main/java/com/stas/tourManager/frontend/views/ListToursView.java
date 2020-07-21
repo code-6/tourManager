@@ -7,29 +7,26 @@ import com.stas.tourManager.backend.persistance.services.TourService;
 import com.stas.tourManager.util.DesktopAPI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Anchor;
-import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.Null;
 import java.awt.*;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 //@CssImport("./styles/shared-styles.css")
 //@JavaScript("https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
@@ -52,7 +49,7 @@ public class ListToursView extends HorizontalLayout {
 
     private Grid<Tour> grid = new Grid<>(Tour.class);
 
-    private final Button createButton = new Button( VaadinIcon.PLUS.create());
+    private final Button createButton = new Button(VaadinIcon.PLUS.create());
 
     private final AddTourForm form;
 
@@ -86,8 +83,9 @@ public class ListToursView extends HorizontalLayout {
         grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
 
         grid.setColumns("title");
-
-        grid.getColumnByKey("title").setHeader(new TextField("Title"));
+        var titleTextField = new TextField("Title");
+        titleTextField.setValueChangeMode(ValueChangeMode.EAGER);
+        grid.getColumnByKey("title").setHeader(titleTextField);
 
         // set auto width to columns
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
@@ -110,18 +108,18 @@ public class ListToursView extends HorizontalLayout {
         grid.addComponentColumn(tour -> {
             var anchor = new Anchor();
             var tourFile = tour.getFile();
-            if(tourFile != null)
+            if (tourFile != null)
                 anchor.setText(tourFile.getName());
 
             anchor.getElement().addEventListener("click", e -> {
                 try {
-                    if(Desktop.isDesktopSupported())
+                    if (Desktop.isDesktopSupported())
                         Desktop.getDesktop().open(tour.getFile());
                     else
                         DesktopAPI.open(tour.getFile());
 
                 } catch (IOException exception) {
-                    Notification.show("File:"+tour.getFile().getName()+" was removed or not exist", 3000, Notification.Position.MIDDLE);
+                    Notification.show("File:" + tour.getFile().getName() + " was removed or not exist", 3000, Notification.Position.MIDDLE);
                     exception.printStackTrace();
                 }
             });
@@ -135,6 +133,16 @@ public class ListToursView extends HorizontalLayout {
 //                .setAutoWidth(false)
 //                .setWidth("200px");
 
+        var driversTextField = new TextField("Drivers");
+        driversTextField.setValueChangeMode(ValueChangeMode.EAGER);
+        driversTextField.addValueChangeListener(s -> {
+            if (s.getValue() == null || s.getValue().isEmpty()) {
+                grid.setItems(tourService.getAll());
+            } else {
+                //filterByDriver(s.getValue());
+                filter(s.getValue());
+            }
+        });
         grid.addComponentColumn(tour -> {
             var hl = new HorizontalLayout();
             hl.setAlignItems(Alignment.START);
@@ -143,12 +151,12 @@ public class ListToursView extends HorizontalLayout {
                 a.addClassName("a");
                 a.setText(driver.getFullName());
                 a.getElement().addEventListener("click", click -> {
-                    Notification.show("Driver \""+driver.getFullName()+"\" selected", 3000, Notification.Position.MIDDLE);
+                    Notification.show("Driver \"" + driver.getFullName() + "\" selected", 3000, Notification.Position.MIDDLE);
                 });
                 hl.add(a);
             });
             return hl;
-        }).setTextAlign(ColumnTextAlign.START).setHeader(new TextField("Drivers")).setAutoWidth(true);
+        }).setTextAlign(ColumnTextAlign.START).setHeader(driversTextField).setAutoWidth(true);
 
         grid.addComponentColumn(tour -> {
             var hl = new HorizontalLayout();
@@ -159,7 +167,7 @@ public class ListToursView extends HorizontalLayout {
                 a.addClassName("a");
                 a.setText(guide.getFullName());
                 a.getElement().addEventListener("click", click -> {
-                    Notification.show("Guide \""+guide.getFullName()+"\" selected", 3000, Notification.Position.MIDDLE);
+                    Notification.show("Guide \"" + guide.getFullName() + "\" selected", 3000, Notification.Position.MIDDLE);
                 });
                 hl.add(a);
             });
@@ -168,7 +176,7 @@ public class ListToursView extends HorizontalLayout {
 
         // add edit button to each row and create button as header of the column.
         grid.addComponentColumn(tour -> {
-            var editButton = new Button( VaadinIcon.EDIT.create());
+            var editButton = new Button(VaadinIcon.EDIT.create());
             editButton.addClassName("button-edit");
             editButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
             editButton.addClickListener(e -> {
@@ -186,6 +194,18 @@ public class ListToursView extends HorizontalLayout {
         grid.setSizeFull();
 
         add(grid);
+    }
+
+    private void filterByDriver(String name) {
+        try {
+            grid.setItems(tourService.filterByDriver(driverService.filterDrivers(name)));
+        } catch (NoSuchElementException e) {
+            // ignored
+        }
+    }
+
+    private void filter(String string){
+        grid.setItems(tourService.filter(string));
     }
 
     private void initButtons() {
@@ -237,4 +257,8 @@ public class ListToursView extends HorizontalLayout {
     private void updateGrid() {
         grid.setItems(tourService.getAll());
     }
+
+//    public Grid<Tour> getGrid() {
+//        return grid;
+//    }
 }

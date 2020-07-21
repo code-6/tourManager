@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DriverService {
@@ -26,8 +27,8 @@ public class DriverService {
         logger.info("created new driver: " + driver.toString());
     }
 
-    public void saveOrUpdate(Driver driver){
-        if(existDriver(driver.getId()))
+    public void saveOrUpdate(Driver driver) {
+        if (existDriver(driver.getId()))
             updateDriver(driver.getId(), driver.getFirstName(), driver.getMiddleName(), driver.getLastName(), driver.getCar());
         else
             addDriver(driver);
@@ -86,6 +87,15 @@ public class DriverService {
     public Optional<Driver> getDriver(String fullName) {
         return drivers.stream().filter(g -> g.getFullName().equalsIgnoreCase(fullName)).findAny();
     }
+
+    public List<Driver> filterDrivers(String name) {
+
+        return drivers.stream().filter(driver -> driver.getFirstName().equalsIgnoreCase(name) ||
+                driver.getMiddleName()!= null && driver.getMiddleName().equalsIgnoreCase(name) ||
+                driver.getLastName().equalsIgnoreCase(name)).collect(Collectors.toList());
+    }
+
+
 
     /**
      * @// FIXME: 4/28/20 logging doesn't shows old data.
@@ -150,7 +160,7 @@ public class DriverService {
         return drivers;
     }
 
-    public static Driver getRandomDriver(){
+    public static Driver getRandomDriver() {
         return drivers.get(new Random().nextInt(drivers.size()));
     }
 }

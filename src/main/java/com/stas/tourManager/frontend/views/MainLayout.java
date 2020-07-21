@@ -18,6 +18,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 
 @PWA(name = "Tour Manager", iconPath = "img/icons/android-chrome-512x512.png", shortName = "TM")
 public class MainLayout extends AppLayout {
+
     public MainLayout() {
         initHeader();
     }

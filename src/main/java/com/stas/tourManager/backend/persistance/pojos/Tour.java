@@ -1,5 +1,6 @@
 package com.stas.tourManager.backend.persistance.pojos;
 
+import com.stas.tourManager.frontend.views.ListToursView;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
@@ -76,11 +78,20 @@ public class Tour extends AbstractEntity {
                 "title='" + title + '\'' +
                 ", id='" + id + '\'' +
                 ", description='" + description + '\'' +
-                ", date=" + date +
+                ", date=" + getIntervalInFormat() +
                 ", guides=" + guides.toString() +
                 ", drivers=" + drivers.toString() +
                 ", file='" + file + '\'' +
                 '}';
+    }
+
+    private String getIntervalInFormat(){
+        if(date != null){
+            return String.format("%s/%s", date.getStart().toString(ListToursView.DATE_TIME_FORMAT, Locale.US),
+                    date.getEnd().toString(ListToursView.DATE_TIME_FORMAT, Locale.US));
+        }else{
+            return null;
+        }
     }
     //endregion
 
