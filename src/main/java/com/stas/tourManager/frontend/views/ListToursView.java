@@ -19,7 +19,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.router.Route;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -52,6 +51,8 @@ public class ListToursView extends HorizontalLayout {
 
     private Grid<Tour> grid = new Grid<>(Tour.class);
 
+    private ListDataProvider<Tour> dataProvider;
+
     private final Button createButton = new Button(VaadinIcon.PLUS.create());
 
     private final AddTourForm form;
@@ -60,6 +61,8 @@ public class ListToursView extends HorizontalLayout {
         this.tourService = tourService;
         this.guideService = guideService;
         this.driverService = driverService;
+
+        dataProvider = DataProvider.ofCollection(this.tourService.getAll());
 
         tour = new Tour();
 
@@ -82,8 +85,6 @@ public class ListToursView extends HorizontalLayout {
     private void initGrid() {
         grid.addClassNames("grid", "grid-tours");
         //var toursList = tourService.getAll();
-
-        ListDataProvider<Tour> dataProvider = DataProvider.ofCollection(tourService.getAll());
         //grid.setItems(toursList);
         grid.setDataProvider(dataProvider);
         grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_COMPACT, GridVariant.LUMO_NO_BORDER);
@@ -104,7 +105,6 @@ public class ListToursView extends HorizontalLayout {
 
         //grid.removeColumnByKey("from");
         // LocalDateTimeRenderer for date and time
-
         var fromTextField = new TextField("From");
         fromTextField.setValueChangeMode(ValueChangeMode.LAZY);
         fromTextField.addValueChangeListener(s->{
@@ -262,14 +262,22 @@ public class ListToursView extends HorizontalLayout {
     }
 
     private void deleteTour(AddTourForm.DeleteEvent evt) {
-        tourService.delete(evt.getTour());
-        updateGrid();
+        var tour = evt.getTour();
+        tourService.delete(tour);
+        // FIXME: 7/24/20 why refresh item does not updates grid?
+        //dataProvider.refreshItem(tour);
+        // note: this is only temporal solution.
+        dataProvider.refreshAll();
+        //updateGrid();
         closeAddForm();
     }
 
     private void saveTour(AddTourForm.SaveEvent evt) {
-        tourService.saveOrUpdate(evt.getTour());
-        updateGrid();
+        var tour = evt.getTour();
+        tourService.saveOrUpdate(tour);
+        dataProvider.refreshAll();
+
+        //updateGrid();
         closeAddForm();
     }
 
@@ -293,6 +301,7 @@ public class ListToursView extends HorizontalLayout {
 
     /**
      * @implNote how this method will affect on load if there will be more than thousands rows?
+     * @since used data provider and in memory
      * todo : make cacheble
      */
     private void updateGrid() {
