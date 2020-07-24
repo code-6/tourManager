@@ -1,4 +1,4 @@
-package com.stas.tourManager.frontend.views;
+package com.stas.tourManager.util;
 
 import com.vaadin.flow.data.renderer.BasicRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
@@ -9,6 +9,11 @@ import org.joda.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+/**
+ * Renders joda date time. It is needed for display date in required format in a grid.
+ *
+ * @author stas
+ * */
 public class DateTimeRenderer<SOURCE> extends BasicRenderer<SOURCE, DateTime> {
 
 
