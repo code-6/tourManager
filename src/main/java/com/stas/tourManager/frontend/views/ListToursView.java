@@ -102,24 +102,54 @@ public class ListToursView extends HorizontalLayout {
         });
         grid.getColumnByKey("title").setHeader(titleTextField);
 
-        // set auto width to columns
-        grid.getColumns().forEach(c -> c.setAutoWidth(true));
-
         //grid.removeColumnByKey("from");
         // LocalDateTimeRenderer for date and time
+
+        var fromTextField = new TextField("From");
+        fromTextField.setValueChangeMode(ValueChangeMode.LAZY);
+        fromTextField.addValueChangeListener(s->{
+            var value = s.getValue();
+            // do tours filter by title
+            if (value != null && !value.isEmpty()) {
+                //dataProvider.setFilterByValue(t -> t.getTitle().toLowerCase(), value.toLowerCase());
+                dataProvider.setFilter(t -> t.getFrom().toString(DATE_TIME_FORMAT, Locale.US).toLowerCase().contains(value));
+            } else dataProvider.clearFilters();
+        });
         grid.addColumn(new DateTimeRenderer<>(Tour::getFrom,
                 DATE_TIME_FORMATTER.withLocale(Locale.US)))
                 .setComparator(Comparator.comparing(Tour::getFrom))
                 .setTextAlign(ColumnTextAlign.START)
-                .setHeader(new TextField("From")).setSortable(true).setVisible(true);
+                .setHeader(fromTextField).setSortable(true).setVisible(true);
 
         //grid.removeColumnByKey("to");
+        var toTextField = new TextField("To");
+        toTextField.setValueChangeMode(ValueChangeMode.LAZY);
+        toTextField.addValueChangeListener(s->{
+            var value = s.getValue();
+            // do tours filter by title
+            if (value != null && !value.isEmpty()) {
+                //dataProvider.setFilterByValue(t -> t.getTitle().toLowerCase(), value.toLowerCase());
+                dataProvider.setFilter(t -> t.getFrom().toString(DATE_TIME_FORMAT, Locale.US).toLowerCase().contains(value));
+            } else dataProvider.clearFilters();
+        });
         grid.addColumn(new DateTimeRenderer<>(Tour::getTo,
                 DATE_TIME_FORMATTER.withLocale(Locale.US)))
                 .setComparator(Comparator.comparing(Tour::getTo))
                 .setTextAlign(ColumnTextAlign.START)
-                .setHeader(new TextField("To")).setSortable(true).setVisible(true);
+                .setHeader(toTextField).setSortable(true).setVisible(true);
 
+        grid.getColumns().forEach(c -> c.setAutoWidth(true));
+
+        var fileTextField = new TextField("File");
+        fileTextField.setValueChangeMode(ValueChangeMode.LAZY);
+        fileTextField.addValueChangeListener(s->{
+            var value = s.getValue();
+            // do tours filter by title
+            if (value != null && !value.isEmpty()) {
+                //dataProvider.setFilterByValue(t -> t.getTitle().toLowerCase(), value.toLowerCase());
+                dataProvider.setFilter(t->t.getFile().getName().toLowerCase().contains(value.toLowerCase()));
+            } else dataProvider.clearFilters();
+        });
         grid.addComponentColumn(tour -> {
             var anchor = new Anchor();
             var tourFile = tour.getFile();
@@ -139,7 +169,7 @@ public class ListToursView extends HorizontalLayout {
                 }
             });
             return anchor;
-        }).setHeader(new TextField("File")).setSortable(true).setWidth("150px").setAutoWidth(false);
+        }).setHeader(fileTextField).setSortable(true).setWidth("150px").setAutoWidth(false);
 
 //        // truncate description column
 //        // FIXME: 6/17/20 why this column at first position?
@@ -148,6 +178,15 @@ public class ListToursView extends HorizontalLayout {
 //                .setAutoWidth(false)
 //                .setWidth("200px");
 
+        var driversTextField = new TextField("Drivers");
+        driversTextField.setValueChangeMode(ValueChangeMode.LAZY);
+        driversTextField.addValueChangeListener(s->{
+            var value = s.getValue();
+            // do tours filter by title
+            if (value != null && !value.isEmpty()) {
+                dataProvider.setFilter(t->t.getDrivers().stream().anyMatch(d->d.getFullName().toLowerCase().contains(value.toLowerCase())));
+            } else dataProvider.clearFilters();
+        });
         grid.addComponentColumn(tour -> {
             var hl = new HorizontalLayout();
             hl.setAlignItems(Alignment.START);
@@ -161,8 +200,17 @@ public class ListToursView extends HorizontalLayout {
                 hl.add(a);
             });
             return hl;
-        }).setTextAlign(ColumnTextAlign.START).setHeader(new TextField("Drivers")).setAutoWidth(true);
+        }).setTextAlign(ColumnTextAlign.START).setHeader(driversTextField).setAutoWidth(true);
 
+        var guidesTextField = new TextField("Guides");
+        guidesTextField.setValueChangeMode(ValueChangeMode.LAZY);
+        guidesTextField.addValueChangeListener(s->{
+            var value = s.getValue();
+            // do tours filter by title
+            if (value != null && !value.isEmpty()) {
+                dataProvider.setFilter(t->t.getGuides().stream().anyMatch(g->g.getFullName().toLowerCase().contains(value.toLowerCase())));
+            } else dataProvider.clearFilters();
+        });
         grid.addComponentColumn(tour -> {
             var hl = new HorizontalLayout();
             hl.setAlignItems(Alignment.START);
@@ -177,7 +225,7 @@ public class ListToursView extends HorizontalLayout {
                 hl.add(a);
             });
             return hl;
-        }).setTextAlign(ColumnTextAlign.START).setHeader(new TextField("Guides")).setAutoWidth(true);
+        }).setTextAlign(ColumnTextAlign.START).setHeader(guidesTextField).setAutoWidth(true);
 
         // add edit button to each row and create button as header of the column.
         grid.addComponentColumn(tour -> {
