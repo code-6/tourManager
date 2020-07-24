@@ -208,7 +208,6 @@ public class ListToursView extends HorizontalLayout implements IFilter{
     @Override
     public void filter(String string){
         grid.setItems(tourService.filter(string));
-
     }
 
     private void initButtons() {

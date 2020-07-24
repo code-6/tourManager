@@ -24,16 +24,16 @@ public class TourService {
     private List<Tour> tours = new ArrayList<>();
 
     public void saveOrUpdate(Tour tour) {
-        if(!exist(tour)){
+        if (!exist(tour)) {
             tours.add(tour);
             createFolder(tour);
             log.info("create new tour: " + tour.toString());
-        }else{
+        } else {
             update(tour);
         }
     }
 
-    public List<Tour> getAll(){
+    public List<Tour> getAll() {
         return tours;
     }
 
@@ -52,7 +52,7 @@ public class TourService {
         if (rootPath == null || rootPath.isEmpty())
             rootPath = '.' + sep + "tourManagerDocsRoot";
         if (!Files.exists(Paths.get(rootPath + sep + tour.getTitle()))) {
-            new File( rootPath + sep + tour.getId()).mkdir();
+            new File(rootPath + sep + tour.getId()).mkdir();
         }
     }
 
@@ -64,7 +64,7 @@ public class TourService {
         for (int i = 0; i < tours.size(); i++) {
             var oldTour = tours.get(i);
             if (oldTour.getId() == newTour.getId()) {
-                log.info("update tour: "+oldTour.getTitle()+"\nold data: "+oldTour.toString()+"\nnew data: " + newTour.toString());
+                log.info("update tour: " + oldTour.getTitle() + "\nold data: " + oldTour.toString() + "\nnew data: " + newTour.toString());
                 tours.set(i, newTour);
                 break;
             }
@@ -88,13 +88,13 @@ public class TourService {
         log.debug("init tours complete");
     }
 
-    public List<Tour> filterByDriver(Driver driver){
+    public List<Tour> filterByDriver(Driver driver) {
         return tours.stream().filter(tour ->
-            tour.getDrivers().stream().anyMatch(d -> d.equals(driver))
+                tour.getDrivers().stream().anyMatch(d -> d.equals(driver))
         ).collect(Collectors.toList());
     }
 
-    public List<Tour> filterByDriver(List<Driver> drivers){
+    public List<Tour> filterByDriver(List<Driver> drivers) {
         List<Tour> result = new ArrayList<>();
         for (Tour t : tours) {
             for (Driver d : t.getDrivers()) {
@@ -107,10 +107,9 @@ public class TourService {
         return result;
     }
 
-    public List<Tour> filter(String string){
-        var list = tours.stream()
-                .filter(tour -> tour.toString().toLowerCase().matches("(.*)"+string.toLowerCase()+"(.*)"))
+    public List<Tour> filter(String string) {
+        return tours.stream()
+                .filter(tour -> tour.toString().toLowerCase().matches(String.format("(.*)%s(.*)", string.toLowerCase())))
                 .collect(Collectors.toList());
-        return list;
     }
 }
