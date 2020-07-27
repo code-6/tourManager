@@ -16,6 +16,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -92,6 +93,7 @@ public class ListToursView extends HorizontalLayout {
         grid.setColumns("title");
 
         var titleTextField = new TextField("Title");
+        titleTextField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         titleTextField.setValueChangeMode(ValueChangeMode.LAZY);
         titleTextField.addValueChangeListener(s -> {
             var value = s.getValue();
@@ -106,6 +108,7 @@ public class ListToursView extends HorizontalLayout {
         //grid.removeColumnByKey("from");
         // LocalDateTimeRenderer for date and time
         var fromTextField = new TextField("From");
+        fromTextField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         fromTextField.setValueChangeMode(ValueChangeMode.LAZY);
         fromTextField.addValueChangeListener(s->{
             var value = s.getValue();
@@ -123,6 +126,7 @@ public class ListToursView extends HorizontalLayout {
 
         //grid.removeColumnByKey("to");
         var toTextField = new TextField("To");
+        toTextField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         toTextField.setValueChangeMode(ValueChangeMode.LAZY);
         toTextField.addValueChangeListener(s->{
             var value = s.getValue();
@@ -141,6 +145,7 @@ public class ListToursView extends HorizontalLayout {
         grid.getColumns().forEach(c -> c.setAutoWidth(true));
 
         var fileTextField = new TextField("File");
+        fileTextField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         fileTextField.setValueChangeMode(ValueChangeMode.LAZY);
         fileTextField.addValueChangeListener(s->{
             var value = s.getValue();
@@ -162,10 +167,10 @@ public class ListToursView extends HorizontalLayout {
                         Desktop.getDesktop().open(tour.getFile());
                     else
                         DesktopAPI.open(tour.getFile());
-
-                } catch (IOException exception) {
+// FIXME: 7/26/20 why catch not works?
+                } catch (Exception exception) {
                     Notification.show("File:" + tour.getFile().getName() + " was removed or not exist", 3000, Notification.Position.MIDDLE);
-                    exception.printStackTrace();
+                    System.err.println(exception.getMessage());
                 }
             });
             return anchor;
@@ -179,6 +184,7 @@ public class ListToursView extends HorizontalLayout {
 //                .setWidth("200px");
 
         var driversTextField = new TextField("Drivers");
+        driversTextField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         driversTextField.setValueChangeMode(ValueChangeMode.LAZY);
         driversTextField.addValueChangeListener(s->{
             var value = s.getValue();
@@ -203,6 +209,7 @@ public class ListToursView extends HorizontalLayout {
         }).setTextAlign(ColumnTextAlign.START).setHeader(driversTextField).setAutoWidth(true);
 
         var guidesTextField = new TextField("Guides");
+        guidesTextField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
         guidesTextField.setValueChangeMode(ValueChangeMode.LAZY);
         guidesTextField.addValueChangeListener(s->{
             var value = s.getValue();
