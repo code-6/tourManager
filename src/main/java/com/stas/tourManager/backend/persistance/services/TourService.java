@@ -79,7 +79,7 @@ public class TourService {
     @PostConstruct
     public void init() {
         var faker = new Faker();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             var tour = new Tour();
             tour.setTitle(faker.book().title());
             tour.setDescription(faker.yoda().quote());
@@ -92,12 +92,9 @@ public class TourService {
         log.debug("init tours complete");
     }
 
-    /**
-     * returns random date time interval within current year
-     * */
     private Interval getRandomInterval(){
         var tl = ThreadLocalRandom.current();
-        var year = 2020; // get random year between 2020 and 2021
+        var year = 2020;
         var month = tl.nextInt(1,13); // get random int between 1 and 12
         // find out which month was generated, to get know how many days has this month, can be 28, 29, 30 or 31
         var dateTime = new DateTime();

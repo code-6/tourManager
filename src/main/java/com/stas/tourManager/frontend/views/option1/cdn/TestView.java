@@ -9,6 +9,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -31,7 +32,6 @@ import java.util.Locale;
 
 @Route(value = "test/cdn", layout = MainLayout.class)
 @CssImport("./styles/grid-no-cell-padding.css")
-//@JavaScript("./resources/static/js/test-jquery.js")
 public class TestView extends VerticalLayout {
 
     @Autowired
@@ -145,6 +145,7 @@ public class TestView extends VerticalLayout {
             vl.setPadding(false);
             vl.setSpacing(false);
             vl.setAlignItems(Alignment.CENTER);
+
             // configure content
             DateTime finalDateTime = dt;
             grid.addComponentColumn(tour -> {
@@ -163,8 +164,6 @@ public class TestView extends VerticalLayout {
                     .setHeader(vl)
                     .setAutoWidth(false)
                     .setWidth("1%");
-
-            //dateTime = dateTime.plusDays(1);
 
         }
     }

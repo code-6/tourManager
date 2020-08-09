@@ -5,12 +5,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.dependency.JavaScript;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
@@ -34,6 +32,7 @@ public class MainLayout extends AppLayout {
         driversList.add(new RouterLink("Drivers", ListDriversView.class));
         guidesList.add(new RouterLink("Guides", ListGuidesView.class));
         test.add(new RouterLink("TEST", TestView.class));
+
 
         var tabs = new Tabs(main, toursList, driversList, guidesList, test);
 

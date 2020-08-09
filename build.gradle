@@ -42,11 +42,9 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.github.javafaker/javafaker todo: remove for production
     compile group: 'com.github.javafaker', name: 'javafaker', version: '1.0.2'
+    compile group: 'com.github.appreciated', name: 'apexcharts', version: '2.0.0.beta9'
 
-    // vaadin additional components
-    // https://mvnrepository.com/artifact/com.vaadin/vaadin-confirm-dialog-flow
-//    implementation group: 'com.vaadin', name: 'vaadin-confirm-dialog-flow', version: '3.0.0'
-//    implementation group: 'org.vaadin.addons', name: 'vaadin-bootstrap-datetimerangepicker', version: '2.0'
+
     // https://mvnrepository.com/artifact/org.vaadin.gatanaso/multiselect-combo-box-flow
     compile group: 'org.vaadin.gatanaso', name: 'multiselect-combo-box-flow', version: '3.0.1'
     // https://mvnrepository.com/artifact/com.vaadin/vaadin-upload-flow

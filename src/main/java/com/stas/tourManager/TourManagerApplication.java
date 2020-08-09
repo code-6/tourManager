@@ -12,7 +12,12 @@ import java.nio.file.Paths;
 
 @SpringBootApplication
 public class TourManagerApplication {
-    public static String ROOT_PATH = System.getenv("TOUR_DOCS_ROOT_PATH");
+    public static String ROOT_PATH;
+
+    static{
+        ROOT_PATH = System.getenv("TOUR_DOCS_ROOT_PATH");
+        initDocsRootFolder();
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(TourManagerApplication.class, args);
@@ -31,20 +36,18 @@ public class TourManagerApplication {
             CarService.createCar("audi");
             CarService.createCar("toyota");
             System.out.println("Cars created");
-
-            initDocsRootFolder();
         } catch (LanguageService.InvalidLanguageException e) {
             e.printStackTrace();
         }
     }
 
-    private void initDocsRootFolder() {
+    private static void initDocsRootFolder() {
         final char sep = File.separatorChar;
 
         // if environment variable not setup set default path
         if (ROOT_PATH == null || ROOT_PATH.isEmpty())
             ROOT_PATH = '.' + sep + "tourManagerDocsRoot";
-        if (!Files.exists(Paths.get(System.getenv("TOUR_DOCS_ROOT_PATH")))) {
+        if (!Files.exists(Paths.get(ROOT_PATH))) {
             new File(ROOT_PATH).mkdir();
         }
     }
