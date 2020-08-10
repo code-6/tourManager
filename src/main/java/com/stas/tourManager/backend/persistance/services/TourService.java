@@ -2,8 +2,8 @@ package com.stas.tourManager.backend.persistance.services;
 
 import com.github.javafaker.Faker;
 import com.stas.tourManager.backend.persistance.pojos.Tour;
-import com.stas.tourManager.frontend.views.ListToursView;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,9 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -38,7 +40,7 @@ public class TourService {
         var list = tours.stream().filter(t -> (t.getFrom().getMonthOfYear() == month && t.getFrom().getYear() == year)
                 || (t.getTo().getMonthOfYear() == month && t.getTo().getYear() == year)).sorted(new SortByStartDate())
                 .collect(Collectors.toList());
-        list.forEach(t-> System.out.println(t.getDateAsString(ListToursView.DATE_TIME_FORMAT, Locale.US)));
+        //list.forEach(t-> System.out.println(t.getDateAsString(ListToursView.DATE_TIME_FORMAT, Locale.US)));
         return list;
     }
 
@@ -79,7 +81,7 @@ public class TourService {
     @PostConstruct
     public void init() {
         var faker = new Faker();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 500; i++) {
             var tour = new Tour();
             tour.setTitle(faker.book().title());
             tour.setDescription(faker.yoda().quote());

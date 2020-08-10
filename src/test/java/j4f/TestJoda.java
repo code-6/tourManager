@@ -12,5 +12,6 @@ public class TestJoda {
     void test(){
         var dt = DateTime.now();
         System.out.println(dt.getMonthOfYear());
+        System.out.println(dt.monthOfYear().getAsText());
     }
 }

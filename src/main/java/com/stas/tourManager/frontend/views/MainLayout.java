@@ -58,6 +58,7 @@ public class MainLayout extends AppLayout {
         var hl2 = new HorizontalLayout(button);
         hl2.setAlignItems(FlexComponent.Alignment.BASELINE);
         addToNavbar(hl, hl2);
+
     }
 
 }

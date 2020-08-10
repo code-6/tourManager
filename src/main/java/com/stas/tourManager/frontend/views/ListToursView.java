@@ -8,6 +8,7 @@ import com.stas.tourManager.util.DateTimeRenderer;
 import com.stas.tourManager.util.DesktopAPI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -15,6 +16,7 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -31,7 +33,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Locale;
 
-//@CssImport("./styles/shared-styles.css")
+//@CssImport("./styles/list-tours-view.css")
 //@JavaScript("https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
 //@JavaScript("./scripts/tableFilter.js")
 @Route(value = "tours", layout = MainLayout.class)
@@ -76,7 +78,7 @@ public class ListToursView extends HorizontalLayout {
 
         initButtons();
         initGrid();
-
+        setPadding(false);
         setSizeFull();
         setClassName("tours-list-view");
 
@@ -168,9 +170,9 @@ public class ListToursView extends HorizontalLayout {
                     else
                         DesktopAPI.open(tour.getFile());
 // FIXME: 7/26/20 why catch not works?
-                } catch (Exception exception) {
+                } catch (IOException exception) {
                     Notification.show("File:" + tour.getFile().getName() + " was removed or not exist", 3000, Notification.Position.MIDDLE);
-                    System.err.println(exception.getMessage());
+                    exception.printStackTrace();
                 }
             });
             return anchor;
@@ -194,11 +196,13 @@ public class ListToursView extends HorizontalLayout {
             } else dataProvider.clearFilters();
         });
         grid.addComponentColumn(tour -> {
-            var hl = new HorizontalLayout();
+            var hl = new VerticalLayout();
+            hl.setPadding(false);
+            hl.setSpacing(false);
             hl.setAlignItems(Alignment.START);
             tour.getDrivers().forEach(driver -> {
                 var a = new Anchor();
-                a.addClassName("a");
+                a.addClassName("driver-anchor");
                 a.setText(driver.getFullName());
                 a.getElement().addEventListener("click", click -> {
                     Notification.show("Driver \"" + driver.getFullName() + "\" selected", 3000, Notification.Position.MIDDLE);
@@ -219,12 +223,14 @@ public class ListToursView extends HorizontalLayout {
             } else dataProvider.clearFilters();
         });
         grid.addComponentColumn(tour -> {
-            var hl = new HorizontalLayout();
+            var hl = new VerticalLayout();
+            hl.setPadding(false);
+            hl.setSpacing(false);
             hl.setAlignItems(Alignment.START);
             tour.getGuides().forEach(guide -> {
 
                 var a = new Anchor();
-                a.addClassName("a");
+                a.addClassName("guide-anchor");
                 a.setText(guide.getFullName());
                 a.getElement().addEventListener("click", click -> {
                     Notification.show("Guide \"" + guide.getFullName() + "\" selected", 3000, Notification.Position.MIDDLE);
