@@ -79,7 +79,7 @@ public class TourService {
     @PostConstruct
     public void init() {
         var faker = new Faker();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 500; i++) {
             var tour = new Tour();
             tour.setTitle(faker.book().title());
             tour.setDescription(faker.yoda().quote());
